@@ -60,9 +60,11 @@ app.get('/', async (req, res) => {
         if (BIS) {
             try {
                 const user = await userService.getUserByBusinessNumber(BIS);
-                if (user && user.bannerImage) {
+                if (user) {
                     userData = user;
-                    bannerImage = user.bannerImage;
+                    if (user.bannerImage) {
+                        bannerImage = user.bannerImage;
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching user data for review:', error);
@@ -564,7 +566,13 @@ app.put('/admin/users/:id', requireAdminAuth, async (req, res) => {
             bannerImage: rawData.bannerImage,
             logo: rawData.logo,
             reviewUrl: rawData.reviewUrl,
-            minimumRating: parseInt(rawData.minimumRating) || 0
+            minimumRating: parseInt(rawData.minimumRating) || 0,
+            hideReviewTab: rawData.hideReviewTab === true || rawData.hideReviewTab === 'true',
+            hideBanner: rawData.hideBanner === true || rawData.hideBanner === 'true',
+            hideTitle: rawData.hideTitle === true || rawData.hideTitle === 'true',
+            hideDescription: rawData.hideDescription === true || rawData.hideDescription === 'true',
+            reviewTitle: rawData.reviewTitle || '',
+            reviewDescription: rawData.reviewDescription || ''
         };
 
         console.log('Raw data received:', rawData);
@@ -913,7 +921,14 @@ app.put('/user/api/update', requireUserAuth, async (req, res) => {
             mobileNumber: rawData.mobileNumber,
             bannerImage: rawData.bannerImage,
             logo: rawData.logo,
-            reviewUrl: rawData.reviewUrl
+            reviewUrl: rawData.reviewUrl,
+            minimumRating: parseInt(rawData.minimumRating) || 0,
+            hideReviewTab: rawData.hideReviewTab === true || rawData.hideReviewTab === 'true',
+            hideBanner: rawData.hideBanner === true || rawData.hideBanner === 'true',
+            hideTitle: rawData.hideTitle === true || rawData.hideTitle === 'true',
+            hideDescription: rawData.hideDescription === true || rawData.hideDescription === 'true',
+            reviewTitle: rawData.reviewTitle || '',
+            reviewDescription: rawData.reviewDescription || ''
         };
 
         // Process buttons array

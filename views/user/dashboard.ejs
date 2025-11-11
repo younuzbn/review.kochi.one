@@ -187,6 +187,18 @@
                                 </button>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <div class="toggle-container">
+                                <label class="toggle-label">
+                                    <span class="toggle-text">Hide Banner Image</span>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" name="hideBanner" id="hide-banner" value="true" <%= userData.hideBanner ? 'checked' : '' %>>
+                                        <span class="toggle-slider"></span>
+                                    </div>
+                                </label>
+                                <p class="toggle-description">When enabled, hides the banner image on the review page.</p>
+                            </div>
+                        </div>
                         <div class="form-group" style="display: none;">
                             <label for="logo-upload">Logo</label>
                             <div class="image-upload-container">
@@ -217,6 +229,64 @@
                         <div class="form-group">
                             <label for="user-review">Google Review URL</label>
                             <input type="url" id="user-review" name="reviewUrl" value="<%= userData.reviewUrl || '' %>" class="form-control" placeholder="https://g.page/your-business/review">
+                        </div>
+                        <div class="form-group">
+                            <label for="minimum-rating">Minimum Rating for Google Review Redirect</label>
+                            <select id="minimum-rating" name="minimumRating" class="form-control">
+                                <option value="0" <%= (userData.minimumRating || 0) === 0 ? 'selected' : '' %>>All ratings (0-5) redirect to Google</option>
+                                <option value="1" <%= (userData.minimumRating || 0) === 1 ? 'selected' : '' %>>1-5 stars redirect to Google</option>
+                                <option value="2" <%= (userData.minimumRating || 0) === 2 ? 'selected' : '' %>>2-5 stars redirect to Google</option>
+                                <option value="3" <%= (userData.minimumRating || 0) === 3 ? 'selected' : '' %>>3-5 stars redirect to Google</option>
+                                <option value="4" <%= (userData.minimumRating || 0) === 4 ? 'selected' : '' %>>4-5 stars redirect to Google</option>
+                                <option value="5" <%= (userData.minimumRating || 0) === 5 ? 'selected' : '' %>>Only 5 stars redirect to Google</option>
+                            </select>
+                            <small class="form-text">Ratings below this threshold will be submitted to dashboard instead of redirecting to Google Reviews</small>
+                        </div>
+                        <div class="form-group">
+                            <div class="toggle-container">
+                                <label class="toggle-label">
+                                    <span class="toggle-text">Hide Review Tab</span>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" name="hideReviewTab" id="hide-review-tab" value="true" <%= userData.hideReviewTab ? 'checked' : '' %>>
+                                        <span class="toggle-slider"></span>
+                                    </div>
+                                </label>
+                                <p class="toggle-description">When enabled, hides the title, description, star rating, and "Quick Actions" label. Only action buttons and social links will be visible.</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="toggle-container">
+                                <label class="toggle-label">
+                                    <span class="toggle-text">Hide Title</span>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" name="hideTitle" id="hide-title" value="true" <%= userData.hideTitle ? 'checked' : '' %>>
+                                        <span class="toggle-slider"></span>
+                                    </div>
+                                </label>
+                                <p class="toggle-description">When enabled, hides the title text on the review page.</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="toggle-container">
+                                <label class="toggle-label">
+                                    <span class="toggle-text">Hide Description</span>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" name="hideDescription" id="hide-description" value="true" <%= userData.hideDescription ? 'checked' : '' %>>
+                                        <span class="toggle-slider"></span>
+                                    </div>
+                                </label>
+                                <p class="toggle-description">When enabled, hides the description text on the review page.</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="review-title">Review Page Title</label>
+                            <input type="text" id="review-title" name="reviewTitle" value="<%= userData.reviewTitle || '' %>" class="form-control" placeholder="How was your experience?">
+                            <small class="form-text">Custom title text to display on the review page</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="review-description">Review Page Description</label>
+                            <textarea id="review-description" name="reviewDescription" rows="3" class="form-control" placeholder="We value your opinion and would love to hear about your experience"><%= userData.reviewDescription || '' %></textarea>
+                            <small class="form-text">Custom description text to display on the review page</small>
                         </div>
                     </div>
 
@@ -480,6 +550,23 @@
                 if (socialLinks.length > 0) {
                     profileData.socialLinks = socialLinks;
                 }
+                
+                // Add hide toggles and review text fields
+                const hideReviewTabCheckbox = document.getElementById('hide-review-tab');
+                const hideBannerCheckbox = document.getElementById('hide-banner');
+                const hideTitleCheckbox = document.getElementById('hide-title');
+                const hideDescriptionCheckbox = document.getElementById('hide-description');
+                const reviewTitleInput = document.getElementById('review-title');
+                const reviewDescriptionInput = document.getElementById('review-description');
+                const minimumRatingSelect = document.getElementById('minimum-rating');
+                
+                profileData.hideReviewTab = hideReviewTabCheckbox ? hideReviewTabCheckbox.checked : false;
+                profileData.hideBanner = hideBannerCheckbox ? hideBannerCheckbox.checked : false;
+                profileData.hideTitle = hideTitleCheckbox ? hideTitleCheckbox.checked : false;
+                profileData.hideDescription = hideDescriptionCheckbox ? hideDescriptionCheckbox.checked : false;
+                profileData.reviewTitle = reviewTitleInput ? reviewTitleInput.value : '';
+                profileData.reviewDescription = reviewDescriptionInput ? reviewDescriptionInput.value : '';
+                profileData.minimumRating = minimumRatingSelect ? parseInt(minimumRatingSelect.value) || 0 : 0;
                 
                 const response = await fetch('/user/api/update', {
                     method: 'PUT',

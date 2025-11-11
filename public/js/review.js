@@ -108,6 +108,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Load social links if they exist
                 loadSocialLinks(userData.socialLinks);
+                
+                // If hideReviewTab is enabled, show action buttons container immediately if buttons exist
+                if (userData.hideReviewTab && userData.buttons && userData.buttons.length > 0) {
+                    const enabledButtons = userData.buttons.filter(button => button.enabled !== false);
+                    if (enabledButtons.length > 0) {
+                        const container = document.getElementById('actionButtonsContainer');
+                        if (container) {
+                            container.style.display = 'block';
+                        }
+                    }
+                }
             } else {
                 console.error('Failed to load user data:', data.error);
             }

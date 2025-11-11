@@ -133,6 +133,18 @@
                             </button>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <div class="toggle-container">
+                            <label class="toggle-label">
+                                <span class="toggle-text">Hide Banner Image</span>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" name="hideBanner" id="hide-banner" value="true">
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </label>
+                            <p class="toggle-description">When enabled, hides the banner image on the review page.</p>
+                        </div>
+                    </div>
                     <div class="form-group" style="display: none;">
                         <label for="logo-upload">Logo</label>
                         <div class="image-upload-container">
@@ -182,6 +194,52 @@
                 <!-- Review Section -->
                 <div class="form-section" id="review-section" style="display: none;">
                     <h4>Review</h4>
+                    <div class="form-group">
+                        <div class="toggle-container">
+                            <label class="toggle-label">
+                                <span class="toggle-text">Hide Review Tab</span>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" name="hideReviewTab" id="hide-review-tab" value="true">
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </label>
+                            <p class="toggle-description">When enabled, hides the title, description, star rating, and "Quick Actions" label. Only action buttons and social links will be visible.</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="toggle-container">
+                            <label class="toggle-label">
+                                <span class="toggle-text">Hide Title</span>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" name="hideTitle" id="hide-title" value="true">
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </label>
+                            <p class="toggle-description">When enabled, hides the title text on the review page.</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="toggle-container">
+                            <label class="toggle-label">
+                                <span class="toggle-text">Hide Description</span>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" name="hideDescription" id="hide-description" value="true">
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </label>
+                            <p class="toggle-description">When enabled, hides the description text on the review page.</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="review-title">Review Page Title</label>
+                        <input type="text" id="review-title" name="reviewTitle" placeholder="How was your experience?">
+                        <small class="form-text">Custom title text to display on the review page</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="review-description">Review Page Description</label>
+                        <textarea id="review-description" name="reviewDescription" rows="3" placeholder="We value your opinion and would love to hear about your experience"></textarea>
+                        <small class="form-text">Custom description text to display on the review page</small>
+                    </div>
                     <div class="form-group">
                         <label for="user-review">Google Review URL</label>
                         <input type="url" id="user-review" name="reviewUrl" placeholder="https://g.page/your-business/review">
@@ -866,6 +924,12 @@
             document.getElementById('user-review').value = user.reviewUrl || '';
             document.getElementById('minimum-rating').value = user.minimumRating || 0;
             document.getElementById('user-menu').value = user.menuPdf || '';
+            document.getElementById('hide-review-tab').checked = user.hideReviewTab || false;
+            document.getElementById('hide-banner').checked = user.hideBanner || false;
+            document.getElementById('hide-title').checked = user.hideTitle || false;
+            document.getElementById('hide-description').checked = user.hideDescription || false;
+            document.getElementById('review-title').value = user.reviewTitle || '';
+            document.getElementById('review-description').value = user.reviewDescription || '';
             
             // Load existing images if they exist
             if (user.bannerImage) {
@@ -1075,6 +1139,26 @@
             if (socialLinks.length > 0) {
                 userData.socialLinks = socialLinks;
             }
+            
+            // Add hideReviewTab toggle value
+            const hideReviewTabCheckbox = document.getElementById('hide-review-tab');
+            userData.hideReviewTab = hideReviewTabCheckbox ? hideReviewTabCheckbox.checked : false;
+            
+            // Add hideBanner toggle value
+            const hideBannerCheckbox = document.getElementById('hide-banner');
+            userData.hideBanner = hideBannerCheckbox ? hideBannerCheckbox.checked : false;
+            
+            // Add hideTitle and hideDescription toggle values
+            const hideTitleCheckbox = document.getElementById('hide-title');
+            const hideDescriptionCheckbox = document.getElementById('hide-description');
+            userData.hideTitle = hideTitleCheckbox ? hideTitleCheckbox.checked : false;
+            userData.hideDescription = hideDescriptionCheckbox ? hideDescriptionCheckbox.checked : false;
+            
+            // Add custom review title and description
+            const reviewTitleInput = document.getElementById('review-title');
+            const reviewDescriptionInput = document.getElementById('review-description');
+            userData.reviewTitle = reviewTitleInput ? reviewTitleInput.value : '';
+            userData.reviewDescription = reviewDescriptionInput ? reviewDescriptionInput.value : '';
             
             console.log('Processed form data:', userData);
             console.log('Buttons:', buttons);

@@ -17,28 +17,35 @@
 <body>
 
     <!-- Banner Section -->
+    <% if (!userData || !userData.hideBanner) { %>
     <div class="banner-section">
         <img src="<%= bannerImage %>" alt="Review Banner" class="banner-image">
     </div>
+    <% } %>
 
     <!-- Review Section -->
     <section class="review-section">
         <div class="container">
             <div class="review-content">
-                <h1 class="review-title">
-                    <% if (userData) { %>
-                        How was your experience with <strong><%= userData.name %></strong>?
-                    <% } else { %>
-                        How was your experience?
+                <% if (!userData || !userData.hideReviewTab) { %>
+                    <% if (!userData || !userData.hideTitle) { %>
+                    <h1 class="review-title">
+                        <% if (userData && userData.reviewTitle) { %>
+                            <%= userData.reviewTitle %>
+                        <% } else { %>
+                            How was your experience?
+                        <% } %>
+                    </h1>
                     <% } %>
-                </h1>
-                <p class="review-subtitle">
-                    <% if (userData) { %>
-                        We value your opinion about <strong><%= userData.name %></strong> and would love to hear about your experience
-                    <% } else { %>
-                        We value your opinion and would love to hear about your experience
+                    <% if (!userData || !userData.hideDescription) { %>
+                    <p class="review-subtitle">
+                        <% if (userData && userData.reviewDescription) { %>
+                            <%= userData.reviewDescription %>
+                        <% } else { %>
+                            We value your opinion and would love to hear about your experience
+                        <% } %>
+                    </p>
                     <% } %>
-                </p>
                 
                 <!-- Star Rating -->
                 <div class="rating-container">
@@ -50,26 +57,38 @@
                         <a href="#" class="fas fa-star s5" data-rating="5"></a>
                     </div>
                 </div>
+                <% } %>
 
                 <!-- Action Buttons Section -->
+                <% if (userData && userData.hideReviewTab) { %>
+                <div class="action-buttons-container" id="actionButtonsContainer" style="display: block;">
+                <% } else { %>
                 <div class="action-buttons-container" id="actionButtonsContainer" style="display: none;">
+                <% } %>
+                    <% if (!userData || !userData.hideReviewTab) { %>
                     <h3>Quick Actions</h3>
+                    <% } %>
                     <div class="action-buttons-grid" id="actionButtonsGrid">
                         <!-- Buttons will be dynamically added here -->
                     </div>
                 </div>
 
+                <% if (!userData || !userData.hideReviewTab) { %>
                 <!-- Review Form -->
                 <form class="review-form" id="reviewForm">
                     <button type="submit" class="submit-btn">
-                        <i class="fas fa-paper-plane"></i>
-                        Submit Review
+                        <span>Submit Review</span>
+                        <i class="fas fa-arrow-right"></i>
                     </button>
                 </form>
+                <% } %>
 
                 <!-- Thank You Message -->
                 <div class="thank-you" id="thankYou" style="display: none;">
-                    <h2><i class="fas fa-check-circle"></i> Thank You!</h2>
+                    <h2>
+                        <i class="fas fa-check-circle"></i>
+                        <span>Thank You!</span>
+                    </h2>
                     <p>Your feedback has been submitted successfully. We truly appreciate your time!</p>
                 </div>
             </div>
@@ -84,7 +103,7 @@
                 <!-- Social links will be dynamically loaded here -->
             </div>
             <div class="powered-by">
-                <p>Powered by <a href="/" class="zapex-link">kochi.one</a></p>
+                <p>Powered by <a href="https://kochi.one" class="zapex-link" target="_blank" rel="noopener noreferrer">kochi.one</a></p>
             </div>
         </div>
     </footer>
