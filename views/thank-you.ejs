@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You - <%= title %></title>
+    <link rel="stylesheet" href="/css/review.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .thank-you-page {
+            min-height: 100vh;
+            background: #f8f9fa;
+        }
+        
+        .thank-you-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 3rem;
+            text-align: center;
+            width: 100%;
+            height: 100vh;
+            animation: slideIn 0.6s ease-out;
+        }
+        
+        .thank-you-icon {
+            font-size: 4rem;
+            color: #4CAF50;
+            margin-bottom: 1.5rem;
+            animation: bounce 1s ease-in-out;
+        }
+        
+        .thank-you-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .thank-you-message {
+            font-size: 1.2rem;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+        
+        .rating-display {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .rating-stars {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .rating-stars .star {
+            font-size: 1.5rem;
+            color: #ffd700;
+        }
+        
+        .rating-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        
+        .business-info {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border: 1px solid #e9ecef;
+        }
+        
+        .business-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .business-details {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .thank-you-container {
+                padding: 2rem;
+                margin: 0;
+                border-radius: 0;
+                height: 100vh;
+            }
+            
+            .thank-you-title {
+                font-size: 2rem;
+            }
+            
+        }
+    </style>
+</head>
+<body>
+    <div class="thank-you-page">
+        <div class="thank-you-container">
+            <div class="thank-you-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            
+            <h1 class="thank-you-title">Thank You!</h1>
+            
+            <p class="thank-you-message">
+                Your feedback has been submitted successfully. We truly appreciate your time and valuable input!
+            </p>
+            
+            <% if (userData) { %>
+            <div class="business-info">
+                <div class="business-name"><%= userData.name %></div>
+                <div class="business-details">Thank you for reviewing our service</div>
+            </div>
+            <% } %>
+            
+            <div class="rating-display">
+                <div class="rating-stars">
+                    <% for (let i = 1; i <= 5; i++) { %>
+                        <% if (i <= rating) { %>
+                            <i class="fas fa-star star"></i>
+                        <% } else { %>
+                            <i class="far fa-star star" style="color: #ddd;"></i>
+                        <% } %>
+                    <% } %>
+                </div>
+                <div class="rating-text">
+                    <% 
+                    const ratingTexts = {
+                        1: 'Poor',
+                        2: 'Fair', 
+                        3: 'Good',
+                        4: 'Very Good',
+                        5: 'Excellent'
+                    };
+                    %>
+                    <%= ratingTexts[rating] || 'Thank you for your feedback' %>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+</body>
+</html>

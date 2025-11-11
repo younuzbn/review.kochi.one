@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="/">
+                    <i class="fas fa-wifi"></i>
+                    <span>Kochi One</span>
+                </a>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="/" class="nav-link <%= (typeof page !== 'undefined' && page === 'home') ? 'active' : '' %>">Home</a>
+                <a href="/about" class="nav-link <%= (typeof page !== 'undefined' && page === 'about') ? 'active' : '' %>">About</a>
+                <a href="/services" class="nav-link <%= (typeof page !== 'undefined' && page === 'services') ? 'active' : '' %>">Services</a>
+                <a href="/contact" class="nav-link <%= (typeof page !== 'undefined' && page === 'contact') ? 'active' : '' %>">Contact</a>
+            </div>
+            <div class="nav-toggle" id="nav-toggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <%- body %>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3><i class="fas fa-wifi"></i> Kochi One</h3>
+                    <p>Leading provider of NFC card solutions for modern businesses.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/services">Services</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="/services#nfc-cards">NFC Cards</a></li>
+                        <li><a href="/services#mobile-payments">Mobile Payments</a></li>
+                        <li><a href="/services#access-control">Access Control</a></li>
+                        <li><a href="/services#marketing">Marketing Solutions</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact Info</h4>
+                    <p><i class="fas fa-envelope"></i> info@kochi.one</p>
+                    <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
+                    <p><i class="fas fa-map-marker-alt"></i> 123 Tech Street, Innovation City</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Kochi One. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/script.js"></script>
+</body>
+</html>

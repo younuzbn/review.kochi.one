@@ -1,0 +1,171 @@
+/* PDF Viewer Styles */
+.pdf-viewer-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    z-index: 1;
+}
+
+.pdf-content {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+}
+
+.pdf-canvas-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    position: relative;
+}
+
+.pdf-canvas-container canvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+/* PDF Pages Wrapper for Continuous Scroll */
+.pdf-pages-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 0;
+}
+
+.pdf-page-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    width: fit-content;
+    max-width: 100%;
+}
+
+.pdf-page-label {
+    background: white;
+    color: black;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.pdf-page-wrapper canvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: #6c757d;
+}
+
+.loading-spinner i {
+    font-size: 2rem;
+    margin-bottom: 16px;
+}
+
+.loading-spinner p {
+    font-size: 1rem;
+    margin: 0;
+}
+
+.error-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: #dc3545;
+    text-align: center;
+}
+
+.error-message i {
+    font-size: 2rem;
+    margin-bottom: 16px;
+}
+
+.error-message p {
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .pdf-pages-wrapper {
+        gap: 15px;
+        padding: 15px 0;
+    }
+    
+    .pdf-page-wrapper {
+        border-radius: 6px;
+    }
+    
+    .pdf-page-label {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+    
+    .pdf-content {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .pdf-pages-wrapper {
+        gap: 12px;
+        padding: 12px 0;
+    }
+    
+    .pdf-page-wrapper {
+        border-radius: 4px;
+    }
+    
+    .pdf-page-label {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+}
+
+/* Hide scrollbars but keep functionality */
+.pdf-content::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.pdf-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.pdf-content::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.pdf-content::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}

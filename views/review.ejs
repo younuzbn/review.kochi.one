@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/review.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* Ensure body is visible */
+        body {
+            visibility: visible !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Banner Section -->
+    <div class="banner-section">
+        <img src="<%= bannerImage %>" alt="Review Banner" class="banner-image">
+    </div>
+
+    <!-- Review Section -->
+    <section class="review-section">
+        <div class="container">
+            <div class="review-content">
+                <h1 class="review-title">
+                    <% if (userData) { %>
+                        How was your experience with <strong><%= userData.name %></strong>?
+                    <% } else { %>
+                        How was your experience?
+                    <% } %>
+                </h1>
+                <p class="review-subtitle">
+                    <% if (userData) { %>
+                        We value your opinion about <strong><%= userData.name %></strong> and would love to hear about your experience
+                    <% } else { %>
+                        We value your opinion and would love to hear about your experience
+                    <% } %>
+                </p>
+                
+                <!-- Star Rating -->
+                <div class="rating-container">
+                    <div class="star-wrapper">
+                        <a href="#" class="fas fa-star s1" data-rating="1"></a>
+                        <a href="#" class="fas fa-star s2" data-rating="2"></a>
+                        <a href="#" class="fas fa-star s3" data-rating="3"></a>
+                        <a href="#" class="fas fa-star s4" data-rating="4"></a>
+                        <a href="#" class="fas fa-star s5" data-rating="5"></a>
+                    </div>
+                </div>
+
+                <!-- Action Buttons Section -->
+                <div class="action-buttons-container" id="actionButtonsContainer" style="display: none;">
+                    <h3>Quick Actions</h3>
+                    <div class="action-buttons-grid" id="actionButtonsGrid">
+                        <!-- Buttons will be dynamically added here -->
+                    </div>
+                </div>
+
+                <!-- Review Form -->
+                <form class="review-form" id="reviewForm">
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-paper-plane"></i>
+                        Submit Review
+                    </button>
+                </form>
+
+                <!-- Thank You Message -->
+                <div class="thank-you" id="thankYou" style="display: none;">
+                    <h2><i class="fas fa-check-circle"></i> Thank You!</h2>
+                    <p>Your feedback has been submitted successfully. We truly appreciate your time!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="review-footer">
+        <div class="footer-content">
+            <h3>Stay Connected</h3>
+            <div class="social-links" id="socialLinksContainer">
+                <!-- Social links will be dynamically loaded here -->
+            </div>
+            <div class="powered-by">
+                <p>Powered by <a href="/" class="zapex-link">kochi.one</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/script.js"></script>
+    <script src="/js/review.js"></script>
+    
+    <script>
+
+        // Track review page visit
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get BIS parameter from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const businessNumber = urlParams.get('BIS');
+            
+            if (businessNumber) {
+                // Track the visit
+                trackVisit(businessNumber);
+            }
+        });
+
+        async function trackVisit(businessNumber) {
+            try {
+                const response = await fetch('/api/track-visit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        businessNumber: businessNumber
+                    })
+                });
+
+                if (response.ok) {
+                    console.log('Visit tracked successfully for:', businessNumber);
+                } else {
+                    console.error('Failed to track visit');
+                }
+            } catch (error) {
+                console.error('Error tracking visit:', error);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard - Kochi One</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="/css/admin.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="admin-dashboard">
+    <!-- Admin Navigation -->
+    <nav class="admin-nav">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-wifi"></i>
+                <span>Kochi One Admin</span>
+            </div>
+            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars"></i>
+                <span class="menu-label">Menu</span>
+            </button>
+            <div class="nav-menu" id="navMenu">
+                <a href="/admin/dashboard" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    User Management
+                </a>
+                <a href="/admin/analytics" class="nav-link active">
+                    <i class="fas fa-chart-line"></i>
+                    Analytics
+                </a>
+                <a href="/admin/logout" class="nav-link logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+        <div class="admin-container">
+            <!-- Analytics Header -->
+            <div class="analytics-header">
+                <h2>Analytics Dashboard</h2>
+                <div class="analytics-controls">
+                    <select id="timeRange" class="form-control">
+                        <option value="7">Last 7 days</option>
+                        <option value="30" selected>Last 30 days</option>
+                        <option value="90">Last 90 days</option>
+                        <option value="365">Last year</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="refreshAnalytics()">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="analytics-cards">
+                <div class="analytics-card">
+                    <div class="card-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3 id="totalVisits">0</h3>
+                        <p>Total Review Page Visits</p>
+                    </div>
+                </div>
+                <div class="analytics-card">
+                    <div class="card-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3 id="totalReviews">0</h3>
+                        <p>Total Review Submissions</p>
+                    </div>
+                </div>
+                <div class="analytics-card">
+                    <div class="card-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3 id="avgRating">0.0</h3>
+                        <p>Average Rating</p>
+                    </div>
+                </div>
+                <div class="analytics-card">
+                    <div class="card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3 id="activeUsers">0</h3>
+                        <p>Active Users</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="analytics-charts">
+                <div class="chart-container">
+                    <h3>Review Page Visits Over Time</h3>
+                    <canvas id="visitsChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Review Submissions Over Time</h3>
+                    <canvas id="reviewsChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Rating Distribution</h3>
+                    <canvas id="ratingChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Top Users by Visits</h3>
+                    <canvas id="usersChart"></canvas>
+                </div>
+            </div>
+
+            <!-- User Analytics Table -->
+            <div class="analytics-table-container">
+                <h3>User Analytics</h3>
+                <div class="table-controls">
+                    <input type="text" id="searchUsers" placeholder="Search users..." class="form-control">
+                    <select id="sortBy" class="form-control">
+                        <option value="visits">Sort by Visits</option>
+                        <option value="name">Sort by Name</option>
+                        <option value="businessNumber">Sort by Business Number</option>
+                    </select>
+                </div>
+                <table class="analytics-table">
+                    <thead>
+                        <tr>
+                            <th>Business Number</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Total Visits</th>
+                            <th>Review Submissions</th>
+                            <th>Avg Rating</th>
+                            <th>Last Activity</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="analytics-table-body">
+                        <!-- Analytics data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="admin-footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Kochi One Admin Dashboard. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="/">Main Site</a>
+                <a href="/admin/logout">Logout</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let analyticsData = [];
+        let visitsChart = null;
+        let reviewsChart = null;
+        let ratingChart = null;
+        let usersChart = null;
+
+        // Load analytics when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAnalytics();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Time range change
+            document.getElementById('timeRange').addEventListener('change', function() {
+                loadAnalytics();
+            });
+
+            // Search functionality
+            document.getElementById('searchUsers').addEventListener('input', function() {
+                filterAnalyticsTable();
+            });
+
+            // Sort functionality
+            document.getElementById('sortBy').addEventListener('change', function() {
+                sortAnalyticsTable();
+            });
+        }
+
+        // Load analytics data
+        async function loadAnalytics() {
+            try {
+                const timeRange = document.getElementById('timeRange').value;
+                const response = await fetch(`/admin/analytics/api?timeRange=${timeRange}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    analyticsData = data.analytics;
+                    updateSummaryCards(data.summary);
+                    renderAnalyticsTable();
+                    updateCharts();
+                } else {
+                    console.error('Failed to load analytics:', data.error);
+                }
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+            }
+        }
+
+        // Update summary cards
+        function updateSummaryCards(summary) {
+            document.getElementById('totalVisits').textContent = summary.totalVisits || 0;
+            document.getElementById('totalReviews').textContent = summary.totalReviews || 0;
+            document.getElementById('avgRating').textContent = summary.avgRating || '0.0';
+            document.getElementById('activeUsers').textContent = summary.activeUsers || 0;
+        }
+
+        // Render analytics table
+        function renderAnalyticsTable() {
+            const tbody = document.getElementById('analytics-table-body');
+            tbody.innerHTML = '';
+
+            analyticsData.forEach(user => {
+                const row = document.createElement('tr');
+                const avgRating = user.reviews?.averageRating || 0;
+                const totalReviews = user.reviews?.totalSubmissions || 0;
+                const lastActivity = user.lastVisit ? new Date(user.lastVisit).toLocaleDateString() : 'Never';
+                
+                row.innerHTML = `
+                    <td>${user.businessNumber || 'N/A'}</td>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td><span class="visit-count">${user.totalVisits || 0}</span></td>
+                    <td><span class="review-count">${totalReviews}</span></td>
+                    <td><span class="rating-display">${avgRating > 0 ? avgRating.toFixed(1) : '-'}</span></td>
+                    <td>${lastActivity}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="viewUserDetails('${user.id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-secondary" onclick="viewUserReview('${user.businessNumber}')">
+                            <i class="fas fa-external-link-alt"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Filter analytics table
+        function filterAnalyticsTable() {
+            const searchTerm = document.getElementById('searchUsers').value.toLowerCase();
+            const rows = document.querySelectorAll('#analytics-table-body tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        // Sort analytics table
+        function sortAnalyticsTable() {
+            const sortBy = document.getElementById('sortBy').value;
+            
+            analyticsData.sort((a, b) => {
+                switch (sortBy) {
+                    case 'visits':
+                        return (b.totalVisits || 0) - (a.totalVisits || 0);
+                    case 'name':
+                        return a.name.localeCompare(b.name);
+                    case 'businessNumber':
+                        return a.businessNumber.localeCompare(b.businessNumber);
+                    default:
+                        return 0;
+                }
+            });
+            
+            renderAnalyticsTable();
+        }
+
+        // Update charts
+        function updateCharts() {
+            updateVisitsChart();
+            updateReviewsChart();
+            updateRatingChart();
+            updateUsersChart();
+        }
+
+        // Update visits over time chart
+        function updateVisitsChart() {
+            const ctx = document.getElementById('visitsChart').getContext('2d');
+            
+            if (visitsChart) {
+                visitsChart.destroy();
+            }
+
+            // Group visits by date
+            const visitsByDate = {};
+            analyticsData.forEach(user => {
+                if (user.visitsByDate) {
+                    Object.keys(user.visitsByDate).forEach(date => {
+                        visitsByDate[date] = (visitsByDate[date] || 0) + user.visitsByDate[date];
+                    });
+                }
+            });
+
+            const dates = Object.keys(visitsByDate).sort();
+            const visits = dates.map(date => visitsByDate[date]);
+
+            visitsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates.map(date => new Date(date).toLocaleDateString()),
+                    datasets: [{
+                        label: 'Review Page Visits',
+                        data: visits,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update reviews over time chart
+        function updateReviewsChart() {
+            const ctx = document.getElementById('reviewsChart').getContext('2d');
+            
+            if (reviewsChart) {
+                reviewsChart.destroy();
+            }
+
+            // Group review submissions by date
+            const reviewsByDate = {};
+            analyticsData.forEach(user => {
+                if (user.reviews?.submissionsByDate) {
+                    Object.keys(user.reviews.submissionsByDate).forEach(date => {
+                        reviewsByDate[date] = (reviewsByDate[date] || 0) + user.reviews.submissionsByDate[date];
+                    });
+                }
+            });
+
+            const dates = Object.keys(reviewsByDate).sort();
+            const reviews = dates.map(date => reviewsByDate[date]);
+
+            reviewsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates.map(date => new Date(date).toLocaleDateString()),
+                    datasets: [{
+                        label: 'Review Submissions',
+                        data: reviews,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update rating distribution chart
+        function updateRatingChart() {
+            const ctx = document.getElementById('ratingChart').getContext('2d');
+            
+            if (ratingChart) {
+                ratingChart.destroy();
+            }
+
+            // Aggregate rating distribution across all users
+            const ratingDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+            analyticsData.forEach(user => {
+                if (user.reviews?.ratingDistribution) {
+                    Object.keys(ratingDistribution).forEach(rating => {
+                        ratingDistribution[rating] += user.reviews.ratingDistribution[rating] || 0;
+                    });
+                }
+            });
+
+            ratingChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+                    datasets: [{
+                        data: Object.values(ratingDistribution),
+                        backgroundColor: [
+                            '#ef4444', // Red for 1 star
+                            '#f97316', // Orange for 2 stars
+                            '#eab308', // Yellow for 3 stars
+                            '#22c55e', // Green for 4 stars
+                            '#3b82f6'  // Blue for 5 stars
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update top users chart
+        function updateUsersChart() {
+            const ctx = document.getElementById('usersChart').getContext('2d');
+            
+            if (usersChart) {
+                usersChart.destroy();
+            }
+
+            // Get top 10 users by visits
+            const topUsers = analyticsData
+                .sort((a, b) => (b.totalVisits || 0) - (a.totalVisits || 0))
+                .slice(0, 10);
+
+            usersChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: topUsers.map(user => user.name),
+                    datasets: [{
+                        label: 'Review Page Visits',
+                        data: topUsers.map(user => user.totalVisits || 0),
+                        backgroundColor: '#667eea',
+                        borderColor: '#5a67d8',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // View user details
+        function viewUserDetails(userId) {
+            // Redirect to user management with the specific user selected
+            window.location.href = `/admin/dashboard?userId=${userId}`;
+        }
+
+        // View user review page
+        function viewUserReview(businessNumber) {
+            if (businessNumber) {
+                window.open(`/?BIS=${businessNumber}`, '_blank');
+            }
+        }
+
+        // Refresh analytics
+        function refreshAnalytics() {
+            loadAnalytics();
+        }
+
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const navMenu = document.getElementById('navMenu');
+            const mobileToggle = document.querySelector('.mobile-menu-toggle');
+            const icon = mobileToggle.querySelector('i');
+            const label = mobileToggle.querySelector('.menu-label');
+            
+            navMenu.classList.toggle('active');
+            
+            // Toggle hamburger icon and label
+            if (navMenu.classList.contains('active')) {
+                icon.className = 'fas fa-times';
+                label.textContent = 'Close';
+            } else {
+                icon.className = 'fas fa-bars';
+                label.textContent = 'Menu';
+            }
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const navMenu = document.getElementById('navMenu');
+            const mobileToggle = document.querySelector('.mobile-menu-toggle');
+            
+            if (navMenu.classList.contains('active') && 
+                !navMenu.contains(event.target) && 
+                !mobileToggle.contains(event.target)) {
+                navMenu.classList.remove('active');
+                const icon = mobileToggle.querySelector('i');
+                const label = mobileToggle.querySelector('.menu-label');
+                icon.className = 'fas fa-bars';
+                label.textContent = 'Menu';
+            }
+        });
+
+        // Session refresh functionality
+        function refreshSession() {
+            fetch('/admin/refresh-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Session refreshed successfully');
+                }
+            })
+            .catch(error => {
+                console.error('Session refresh failed:', error);
+            });
+        }
+
+        // Refresh session every 5 minutes
+        setInterval(refreshSession, 5 * 60 * 1000);
+
+        // Refresh session on page visibility change (when user comes back to tab)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                refreshSession();
+            }
+        });
+    </script>
+</body>
+</html>

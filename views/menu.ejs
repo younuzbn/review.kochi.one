@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    
+    <link rel="stylesheet" href="/css/pdf-viewer.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8f9fa;
+        }
+        
+        .no-menu-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+            background: #f8f9fa;
+        }
+        
+        .no-menu-content {
+            background: white;
+            padding: 40px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .no-menu-content i {
+            font-size: 3rem;
+            color: #6c757d;
+            margin-bottom: 1.5rem;
+        }
+        
+        .no-menu-content h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        .no-menu-content p {
+            font-size: 1rem;
+            color: #6c757d;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+        
+        .no-menu-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            max-width: 200px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
+        }
+        
+        /* Mobile-specific optimizations */
+        @media (max-width: 480px) {
+            .no-menu-content {
+                padding: 30px 15px;
+                margin: 10px;
+            }
+            
+            .no-menu-content i {
+                font-size: 2.5rem;
+            }
+            
+            .no-menu-content h2 {
+                font-size: 1.3rem;
+            }
+            
+            .no-menu-content p {
+                font-size: 0.9rem;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Prevent zoom on input focus for mobile */
+        input, textarea, select {
+            font-size: 16px;
+        }
+        
+        /* Ensure no horizontal scroll */
+        body {
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+<body>
+
+    <% if (menuPdf) { %>
+        <!-- Advanced PDF Viewer -->
+        <div id="pdf-viewer-container"></div>
+        <script>
+            // Pass PDF URL to JavaScript through proxy to avoid CORS issues
+            window.menuPdfUrl = '/api/pdf-proxy?url=' + encodeURIComponent('<%= menuPdf %>');
+        </script>
+    <% } else { %>
+        <!-- No Menu Available -->
+        <div class="no-menu-container">
+            <div class="no-menu-content">
+                <i class="fas fa-file-pdf"></i>
+                <h2>No Menu Available</h2>
+                <p>
+                    <% if (userData) { %>
+                        <%= userData.name %> hasn't uploaded a menu yet.
+                    <% } else { %>
+                        No menu has been uploaded for this business.
+                    <% } %>
+                </p>
+                <div class="no-menu-actions">
+                    <a href="/contact" class="btn btn-primary">
+                        <i class="fas fa-envelope"></i>
+                        Contact Us
+                    </a>
+                    <a href="/" class="btn btn-secondary">
+                        <i class="fas fa-home"></i>
+                        Go Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    <% } %>
+
+    <script>
+        // Track menu page visit
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get BIS parameter from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const businessNumber = urlParams.get('BIS');
+            
+            if (businessNumber) {
+                // Track the visit
+                trackMenuVisit(businessNumber);
+            }
+        });
+
+        async function trackMenuVisit(businessNumber) {
+            try {
+                const response = await fetch('/api/track-visit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        businessNumber: businessNumber
+                    })
+                });
+
+                if (response.ok) {
+                    console.log('Menu visit tracked successfully for:', businessNumber);
+                } else {
+                    console.error('Failed to track menu visit');
+                }
+            } catch (error) {
+                console.error('Error tracking menu visit:', error);
+            }
+        }
+    </script>
+    
+    <!-- PDF Viewer Script -->
+    <script src="/js/pdf-viewer.js"></script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Kochi One</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="/css/admin.css" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+</head>
+<body class="admin-login">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="logo">
+                    <i class="fas fa-wifi"></i>
+                    <span>Kochi One</span>
+                </div>
+                <h1>Admin Login</h1>
+                <p>Sign in to access the admin dashboard</p>
+            </div>
+
+            <div class="login-content">
+                <div id="login-form">
+                    <button id="google-signin-btn" class="google-signin-btn">
+                        <i class="fab fa-google"></i>
+                        <span>Sign in with Google</span>
+                    </button>
+                    
+                    <div class="login-info">
+                        <p><i class="fas fa-info-circle"></i> Only authorized administrators can access this area.</p>
+                    </div>
+                </div>
+
+                <div id="loading" class="loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Verifying credentials...</p>
+                </div>
+
+                <div id="error-message" class="error-message" style="display: none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span id="error-text"></span>
+                </div>
+            </div>
+
+            <div class="login-footer">
+                <p>&copy; 2024 Kochi One. All rights reserved.</p>
+                <a href="/" class="back-to-site">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Main Site
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "<%= process.env.FIREBASE_API_KEY %>",
+            authDomain: "<%= process.env.FIREBASE_AUTH_DOMAIN %>",
+            projectId: "<%= process.env.FIREBASE_PROJECT_ID %>",
+            storageBucket: "<%= process.env.FIREBASE_STORAGE_BUCKET %>",
+            messagingSenderId: "<%= process.env.FIREBASE_MESSAGING_SENDER_ID %>",
+            appId: "<%= process.env.FIREBASE_APP_ID %>"
+        };
+
+        // Initialize Firebase
+        let auth;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+        } catch (error) {
+            console.error('Firebase initialization error:', error);
+        }
+
+        // Google Sign-In
+        const googleSignInBtn = document.getElementById('google-signin-btn');
+        const loading = document.getElementById('loading');
+        const errorMessage = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+
+        googleSignInBtn.addEventListener('click', async () => {
+            try {
+                loading.style.display = 'block';
+                errorMessage.style.display = 'none';
+
+                const provider = new firebase.auth.GoogleAuthProvider();
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+
+                // Note: Server-side validation will handle admin email checking
+                // Client-side validation removed to allow server to handle multiple admin emails
+
+                // Get the ID token
+                const idToken = await user.getIdToken();
+
+                // Send token to server for verification
+                console.log('Sending token to server...');
+                const response = await fetch('/admin/verify-token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ idToken })
+                });
+
+                console.log('Server response:', response.status);
+                const data = await response.json();
+                console.log('Server data:', data);
+
+                if (response.ok) {
+                    console.log('Authentication successful, redirecting...');
+                    // Redirect to dashboard
+                    window.location.href = '/admin/dashboard';
+                } else {
+                    throw new Error(data.error || 'Authentication failed');
+                }
+
+            } catch (error) {
+                console.error('Sign-in error:', error);
+                errorText.textContent = error.message;
+                errorMessage.style.display = 'block';
+                loading.style.display = 'none';
+            }
+        });
+
+        // Check if user is already signed in (commented out to prevent redirect loop)
+        // if (auth) {
+        //     auth.onAuthStateChanged((user) => {
+        //         console.log('Auth state changed:', user);
+        //         if (user && user.email === 'younuzbn@gmail.com') {
+        //             console.log('User already signed in, redirecting...');
+        //             // User is already signed in, redirect to dashboard
+        //             window.location.href = '/admin/dashboard';
+        //         }
+        //     });
+        // }
+    </script>
+</body>
+</html>

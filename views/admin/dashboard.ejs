@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Kochi One</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="/css/admin.css" rel="stylesheet">
+</head>
+<body class="admin-dashboard">
+    <!-- Admin Navigation -->
+    <nav class="admin-nav">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-wifi"></i>
+                <span>Kochi One Admin</span>
+            </div>
+            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars"></i>
+                <span class="menu-label">Menu</span>
+            </button>
+            <div class="nav-menu" id="navMenu">
+                <a href="/admin/dashboard" class="nav-link active">
+                    <i class="fas fa-users"></i>
+                    User Management
+                </a>
+                <a href="/admin/analytics" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Analytics
+                </a>
+                <a href="/admin/logout" class="nav-link logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+        <div class="admin-container">
+            <!-- User Management Section -->
+            <div id="user-management" class="user-management">
+                <div class="user-management-header">
+                    <h2>User Management</h2>
+                    <button class="btn btn-primary" onclick="showAddUserModal()">
+                        <i class="fas fa-plus"></i>
+                        Add New User
+                    </button>
+                </div>
+
+                <!-- Users Table -->
+                <div class="users-table-container">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Business Number</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Mobile</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body">
+                            <!-- Users will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="admin-footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Kochi One Admin Dashboard. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="/">Main Site</a>
+                <a href="/admin/logout">Logout</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Add/Edit User Modal -->
+    <div id="user-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Add New User</h3>
+                <span class="close" onclick="closeUserModal()">&times;</span>
+            </div>
+            <form id="user-form">
+                <!-- Basic Information -->
+                <div class="form-section">
+                    <h4>Basic Information</h4>
+                    <div class="form-group">
+                        <label for="user-name">Full Name *</label>
+                        <input type="text" id="user-name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-email">Email Address *</label>
+                        <input type="email" id="user-email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-mobile">Mobile Number *</label>
+                        <input type="tel" id="user-mobile" name="mobileNumber" required>
+                    </div>
+                </div>
+
+                <!-- Media Section -->
+                <div class="form-section" id="media-section" style="display: none;">
+                    <h4>Media</h4>
+                    <div class="form-group">
+                        <label for="banner-upload">Banner Image</label>
+                        <div class="image-upload-container">
+                            <input type="file" id="banner-upload" accept="image/*" style="display: none;">
+                            <div class="image-upload-area" onclick="document.getElementById('banner-upload').click()">
+                                <div id="banner-preview" class="image-preview">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>Click to upload banner image</p>
+                                </div>
+                            </div>
+                            <div class="image-upload-progress" id="banner-progress" style="display: none;">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="banner-progress-fill"></div>
+                                </div>
+                                <span id="banner-progress-text">Uploading...</span>
+                            </div>
+                            <input type="hidden" id="user-banner" name="bannerImage">
+                            <button type="button" id="banner-delete" class="image-delete-btn" onclick="deleteImage('banner')" style="display: none;">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group" style="display: none;">
+                        <label for="logo-upload">Logo</label>
+                        <div class="image-upload-container">
+                            <input type="file" id="logo-upload" accept="image/*" style="display: none;">
+                            <div class="image-upload-area" onclick="document.getElementById('logo-upload').click()">
+                                <div id="logo-preview" class="image-preview">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>Click to upload logo</p>
+                                </div>
+                            </div>
+                            <div class="image-upload-progress" id="logo-progress" style="display: none;">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="logo-progress-fill"></div>
+                                </div>
+                                <span id="logo-progress-text">Uploading...</span>
+                            </div>
+                            <input type="hidden" id="user-logo" name="logo">
+                            <button type="button" id="logo-delete" class="image-delete-btn" onclick="deleteImage('logo')" style="display: none;">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Buttons Section -->
+                <div class="form-section" id="buttons-section" style="display: none;">
+                    <h4>Buttons</h4>
+                    <div id="buttons-container">
+                        <!-- Buttons will be added here dynamically -->
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addButton()">
+                        <i class="fas fa-plus"></i> Add Button
+                    </button>
+                </div>
+
+                <!-- Social Links Section -->
+                <div class="form-section" id="social-section" style="display: none;">
+                    <h4>Social Links</h4>
+                    <div id="social-container">
+                        <!-- Social links will be added here dynamically -->
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addSocialLink()">
+                        <i class="fas fa-plus"></i> Add Social Link
+                    </button>
+                </div>
+
+                <!-- Review Section -->
+                <div class="form-section" id="review-section" style="display: none;">
+                    <h4>Review</h4>
+                    <div class="form-group">
+                        <label for="user-review">Google Review URL</label>
+                        <input type="url" id="user-review" name="reviewUrl" placeholder="https://g.page/your-business/review">
+                    </div>
+                    <div class="form-group">
+                        <label for="minimum-rating">Minimum Rating for Google Review Redirect</label>
+                        <select id="minimum-rating" name="minimumRating">
+                            <option value="0">All ratings (0-5) redirect to Google</option>
+                            <option value="1">1-5 stars redirect to Google</option>
+                            <option value="2">2-5 stars redirect to Google</option>
+                            <option value="3">3-5 stars redirect to Google</option>
+                            <option value="4">4-5 stars redirect to Google</option>
+                            <option value="5">Only 5 stars redirect to Google</option>
+                        </select>
+                        <small class="form-text">Ratings below this threshold will be submitted to dashboard instead of redirecting to Google Reviews</small>
+                    </div>
+                </div>
+
+                <!-- Menu Section -->
+                <div class="form-section" id="menu-section" style="display: none;">
+                    <h4>Menu PDF</h4>
+                    <div class="form-group">
+                        <label for="menu-upload">Menu PDF</label>
+                        <div class="pdf-upload-container">
+                            <input type="file" id="menu-upload" accept=".pdf" style="display: none;">
+                            <div class="pdf-upload-area" onclick="document.getElementById('menu-upload').click()">
+                                <div id="menu-preview" class="pdf-preview">
+                                    <i class="fas fa-file-pdf"></i>
+                                    <p>Click to upload menu PDF</p>
+                                    <small>Maximum size: 10MB</small>
+                                </div>
+                            </div>
+                            <div class="pdf-upload-progress" id="menu-progress" style="display: none;">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="menu-progress-fill"></div>
+                                </div>
+                                <span id="menu-progress-text">Uploading...</span>
+                            </div>
+                            <input type="hidden" id="user-menu" name="menuPdf">
+                            <button type="button" id="menu-delete" class="pdf-delete-btn" onclick="deletePdf('menu')" style="display: none;">
+                                <i class="fas fa-trash"></i> Delete PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeUserModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+
+        let users = [];
+        let editingUserId = null;
+
+        // Load users when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUsers();
+            setupImageUploads();
+            setupPdfUploads();
+        });
+
+        // Setup image upload functionality
+        function setupImageUploads() {
+            // Banner image upload
+            const bannerUpload = document.getElementById('banner-upload');
+            if (bannerUpload) {
+                bannerUpload.addEventListener('change', function(e) {
+                    handleImageUpload(e.target.files[0], 'banner');
+                });
+            }
+
+            // Logo upload
+            const logoUpload = document.getElementById('logo-upload');
+            if (logoUpload) {
+                logoUpload.addEventListener('change', function(e) {
+                    handleImageUpload(e.target.files[0], 'logo');
+                });
+            }
+        }
+
+        // Setup PDF upload functionality
+        function setupPdfUploads() {
+            const menuUpload = document.getElementById('menu-upload');
+            if (menuUpload) {
+                menuUpload.addEventListener('change', function(e) {
+                    handlePdfUpload(e.target.files[0], 'menu');
+                });
+            }
+        }
+
+        // Setup button icon uploads
+        function setupButtonIconUploads() {
+            // Find all button icon file inputs
+            const buttonIconInputs = document.querySelectorAll('input[id^="button-icon-"][type="file"]');
+            buttonIconInputs.forEach(input => {
+                input.addEventListener('change', function(e) {
+                    const buttonIndex = input.id.split('-')[2];
+                    handleButtonIconUpload(e.target.files[0], buttonIndex);
+                });
+            });
+        }
+
+        // Handle PDF upload via server
+        async function handlePdfUpload(file, type) {
+            if (!file) return;
+
+            // Validate file type
+            if (file.type !== 'application/pdf') {
+                alert('Please select a PDF file');
+                return;
+            }
+
+            // Validate file size (max 10MB for PDFs)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size must be less than 10MB');
+                return;
+            }
+
+            try {
+                // Show progress
+                const progressElement = document.getElementById(`${type}-progress`);
+                const progressFill = document.getElementById(`${type}-progress-fill`);
+                const progressText = document.getElementById(`${type}-progress-text`);
+                
+                progressElement.style.display = 'block';
+                progressText.textContent = 'Uploading...';
+
+                // Convert file to base64
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    try {
+                        const pdfData = e.target.result;
+                        
+                        // Simulate progress
+                        let progress = 0;
+                        const progressInterval = setInterval(() => {
+                            progress += 10;
+                            progressFill.style.width = progress + '%';
+                            progressText.textContent = `Uploading... ${progress}%`;
+                            
+                            if (progress >= 90) {
+                                clearInterval(progressInterval);
+                            }
+                        }, 100);
+
+                        // Upload to server
+                        const response = await fetch('/admin/upload-pdf', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                pdfData: pdfData,
+                                userId: editingUserId
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            // Update hidden input with URL
+                            document.getElementById(`user-${type}`).value = result.url;
+                            
+                            // Update preview
+                            updatePdfPreview(type, result.url);
+                            
+                            // Hide progress
+                            progressElement.style.display = 'none';
+                            
+                            console.log(`${type} PDF uploaded successfully:`, result.url);
+                        } else {
+                            throw new Error(result.error || 'Upload failed');
+                        }
+                    } catch (error) {
+                        console.error('Upload error:', error);
+                        progressElement.style.display = 'none';
+                        alert('Upload failed: ' + error.message);
+                    }
+                };
+                
+                reader.readAsDataURL(file);
+
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('Upload failed: ' + error.message);
+            }
+        }
+
+        // Handle image upload via server
+        async function handleImageUpload(file, type) {
+            if (!file) return;
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file');
+                return;
+            }
+
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size must be less than 5MB');
+                return;
+            }
+
+            // Additional validation for base64 size (base64 is ~33% larger than original)
+            const maxBase64Size = 6.7 * 1024 * 1024; // ~5MB original file
+            if (file.size > maxBase64Size) {
+                alert('File is too large. Please choose a smaller image (max 5MB)');
+                return;
+            }
+
+            try {
+                // Show progress
+                const progressElement = document.getElementById(`${type}-progress`);
+                const progressFill = document.getElementById(`${type}-progress-fill`);
+                const progressText = document.getElementById(`${type}-progress-text`);
+                
+                progressElement.style.display = 'block';
+                progressText.textContent = 'Uploading...';
+
+                // Convert file to base64
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    try {
+                        const imageData = e.target.result;
+                        
+                        // Simulate progress
+                        let progress = 0;
+                        const progressInterval = setInterval(() => {
+                            progress += 10;
+                            progressFill.style.width = progress + '%';
+                            progressText.textContent = `Uploading... ${progress}%`;
+                            
+                            if (progress >= 90) {
+                                clearInterval(progressInterval);
+                            }
+                        }, 100);
+
+                        // Upload to server
+                        const response = await fetch('/admin/upload-image', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                imageData: imageData,
+                                type: type
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            // Update hidden input with URL
+                            document.getElementById(`user-${type}`).value = result.url;
+                            
+                            // Update preview
+                            updateImagePreview(type, result.url);
+                            
+                            // Hide progress
+                            progressElement.style.display = 'none';
+                            
+                            console.log(`${type} uploaded successfully:`, result.url);
+                        } else {
+                            throw new Error(result.error || 'Upload failed');
+                        }
+                    } catch (error) {
+                        console.error('Upload error:', error);
+                        progressElement.style.display = 'none';
+                        alert('Upload failed: ' + error.message);
+                    }
+                };
+                
+                reader.readAsDataURL(file);
+
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('Upload failed: ' + error.message);
+            }
+        }
+
+        // Handle button icon upload
+        async function handleButtonIconUpload(file, buttonIndex) {
+            if (!file) return;
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file');
+                return;
+            }
+
+            // Show file size info
+            const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            console.log(`Uploading button icon: ${file.name} (${fileSizeMB} MB)`);
+
+            // Validate file size (max 5MB for icons)
+            if (file.size > 5 * 1024 * 1024) {
+                alert(`File size (${fileSizeMB} MB) must be less than 5MB. Please choose a smaller image.`);
+                return;
+            }
+
+            // Additional validation for base64 size (base64 is ~33% larger than original)
+            const maxBase64Size = 6.7 * 1024 * 1024; // ~5MB original file
+            if (file.size > maxBase64Size) {
+                alert(`File is too large (${fileSizeMB} MB). Please choose a smaller image (max 5MB)`);
+                return;
+            }
+
+            try {
+                // Show progress
+                const progressElement = document.getElementById(`button-icon-progress-${buttonIndex}`);
+                const progressFill = document.getElementById(`button-icon-progress-fill-${buttonIndex}`);
+                const progressText = document.getElementById(`button-icon-progress-text-${buttonIndex}`);
+                
+                progressElement.style.display = 'block';
+                progressText.textContent = 'Uploading...';
+
+                // Convert file to base64
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    try {
+                        const imageData = e.target.result;
+                        
+                        // Simulate progress
+                        let progress = 0;
+                        const progressInterval = setInterval(() => {
+                            progress += 10;
+                            progressFill.style.width = progress + '%';
+                            progressText.textContent = `Uploading... ${progress}%`;
+                            
+                            if (progress >= 90) {
+                                clearInterval(progressInterval);
+                            }
+                        }, 100);
+
+                        // Upload to server
+                        const response = await fetch('/admin/upload-image', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                imageData: imageData,
+                                type: `button-icon-${buttonIndex}`
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            // Update hidden input with URL
+                            document.getElementById(`button-icon-url-${buttonIndex}`).value = result.url;
+                            
+                            // Update preview
+                            updateButtonIconPreview(buttonIndex, result.url);
+                            
+                            // Hide progress
+                            progressElement.style.display = 'none';
+                            
+                            console.log(`Button icon ${buttonIndex} uploaded successfully:`, result.url);
+                        } else {
+                            throw new Error(result.error || 'Upload failed');
+                        }
+                    } catch (error) {
+                        console.error('Upload error:', error);
+                        progressElement.style.display = 'none';
+                        alert('Upload failed: ' + error.message);
+                    }
+                };
+                
+                reader.readAsDataURL(file);
+
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('Upload failed: ' + error.message);
+            }
+        }
+
+        // Update image preview
+        function updateImagePreview(type, url) {
+            const preview = document.getElementById(`${type}-preview`);
+            console.log(`Updating ${type} preview with URL:`, url);
+            
+            if (url && (url.includes('data:image/svg+xml') || url.startsWith('http'))) {
+                // Create a test image to see if the URL is valid
+                const testImg = new Image();
+                testImg.onload = function() {
+                    console.log(`${type} image loaded successfully`);
+                    console.log(`Image dimensions: ${testImg.width}x${testImg.height}`);
+                    preview.innerHTML = `
+                        <img src="${url}" alt="${type}" style="max-width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; display: block; background: transparent;">
+                        <div class="image-overlay">
+                            <i class="fas fa-edit"></i>
+                            <p>Click to change</p>
+                        </div>
+                    `;
+                    console.log(`Updated ${type} preview HTML`);
+                    
+                    // Show delete button
+                    const deleteBtn = document.getElementById(`${type}-delete`);
+                    if (deleteBtn) {
+                        deleteBtn.style.display = 'flex';
+                    }
+                    
+                    // Check if the image is actually visible
+                    setTimeout(() => {
+                        const img = preview.querySelector('img');
+                        if (img) {
+                            console.log(`${type} image element:`, img);
+                            const computedStyle = window.getComputedStyle(img);
+                            console.log(`${type} image computed style:`, computedStyle);
+                            console.log(`${type} image natural dimensions:`, img.naturalWidth, 'x', img.naturalHeight);
+                            console.log(`${type} image display:`, computedStyle.display);
+                            console.log(`${type} image visibility:`, computedStyle.visibility);
+                            console.log(`${type} image opacity:`, computedStyle.opacity);
+                            console.log(`${type} image width:`, computedStyle.width);
+                            console.log(`${type} image height:`, computedStyle.height);
+                            console.log(`${type} image background:`, computedStyle.background);
+                            console.log(`${type} image background-color:`, computedStyle.backgroundColor);
+                        }
+                    }, 100);
+                };
+                testImg.onerror = function() {
+                    console.log(`${type} image failed to load, showing placeholder`);
+                    preview.innerHTML = `
+                        <div style="background: #667eea; color: white; padding: 2rem; text-align: center; border-radius: 8px;">
+                            <i class="fas fa-image" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                            <p>${type.toUpperCase()} Image</p>
+                            <small>Click to upload</small>
+                        </div>
+                    `;
+                    
+                    // Hide delete button on error
+                    const deleteBtn = document.getElementById(`${type}-delete`);
+                    if (deleteBtn) {
+                        deleteBtn.style.display = 'none';
+                    }
+                };
+                testImg.src = url;
+            } else {
+                // Reset to default state
+                preview.innerHTML = `
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Click to upload ${type} image</p>
+                `;
+                
+                // Hide delete button
+                const deleteBtn = document.getElementById(`${type}-delete`);
+                if (deleteBtn) {
+                    deleteBtn.style.display = 'none';
+                }
+            }
+        }
+
+        // Update PDF preview
+        function updatePdfPreview(type, url) {
+            const preview = document.getElementById(`${type}-preview`);
+            console.log(`Updating ${type} PDF preview with URL:`, url);
+            
+            if (url && url.startsWith('http')) {
+                preview.innerHTML = `
+                    <div class="pdf-preview-content">
+                        <i class="fas fa-file-pdf" style="color: #e74c3c; font-size: 2rem; margin-bottom: 1rem;"></i>
+                        <p><strong>Menu PDF</strong></p>
+                        <p style="font-size: 0.9rem; color: #666;">Click to change</p>
+                        <a href="${url}" target="_blank" class="btn btn-sm btn-primary" style="margin-top: 0.5rem;">
+                            <i class="fas fa-eye"></i> View PDF
+                        </a>
+                    </div>
+                `;
+                
+                // Show delete button
+                const deleteBtn = document.getElementById(`${type}-delete`);
+                if (deleteBtn) {
+                    deleteBtn.style.display = 'flex';
+                }
+                
+                console.log(`Updated ${type} PDF preview`);
+            } else {
+                // Reset to default state
+                preview.innerHTML = `
+                    <i class="fas fa-file-pdf"></i>
+                    <p>Click to upload menu PDF</p>
+                    <small>Maximum size: 10MB</small>
+                `;
+                
+                // Hide delete button
+                const deleteBtn = document.getElementById(`${type}-delete`);
+                if (deleteBtn) {
+                    deleteBtn.style.display = 'none';
+                }
+            }
+        }
+
+        // Delete PDF function
+        function deletePdf(type) {
+            if (confirm(`Are you sure you want to delete the ${type} PDF?`)) {
+                // Reset the preview to default state
+                const preview = document.getElementById(`${type}-preview`);
+                preview.innerHTML = `
+                    <i class="fas fa-file-pdf"></i>
+                    <p>Click to upload menu PDF</p>
+                    <small>Maximum size: 10MB</small>
+                `;
+                
+                // Clear the hidden input
+                const hiddenInput = document.getElementById(`user-${type}`);
+                if (hiddenInput) {
+                    hiddenInput.value = '';
+                }
+                
+                // Hide the delete button
+                const deleteBtn = document.getElementById(`${type}-delete`);
+                if (deleteBtn) {
+                    deleteBtn.style.display = 'none';
+                }
+                
+                console.log(`${type} PDF deleted`);
+            }
+        }
+
+        // Delete image function
+        function deleteImage(type) {
+            if (confirm(`Are you sure you want to delete the ${type} image?`)) {
+                // Reset the preview to default state
+                const preview = document.getElementById(`${type}-preview`);
+                preview.innerHTML = `
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Click to upload ${type} image</p>
+                `;
+                
+                // Clear the hidden input
+                const hiddenInput = document.getElementById(`user-${type}`);
+                if (hiddenInput) {
+                    hiddenInput.value = '';
+                }
+                
+                // Hide the delete button
+                const deleteBtn = document.getElementById(`${type}-delete`);
+                if (deleteBtn) {
+                    deleteBtn.style.display = 'none';
+                }
+                
+                console.log(`${type} image deleted`);
+            }
+        }
+
+        // Update button icon preview
+        function updateButtonIconPreview(buttonIndex, url) {
+            const preview = document.getElementById(`button-icon-preview-${buttonIndex}`);
+            console.log(`Updating button icon ${buttonIndex} preview with URL:`, url);
+            
+            if (url && (url.includes('data:image/svg+xml') || url.startsWith('http'))) {
+                // Create a test image to see if the URL is valid
+                const testImg = new Image();
+                testImg.onload = function() {
+                    console.log(`Button icon ${buttonIndex} loaded successfully`);
+                    preview.innerHTML = `
+                        <img src="${url}" alt="button icon" style="max-width: 100%; max-height: 100px; object-fit: contain; border-radius: 8px; display: block;">
+                        <div class="image-overlay">
+                            <i class="fas fa-edit"></i>
+                            <p>Click to change</p>
+                        </div>
+                    `;
+                };
+                testImg.onerror = function() {
+                    console.log(`Button icon ${buttonIndex} failed to load, showing placeholder`);
+                    preview.innerHTML = `
+                        <div style="background: #667eea; color: white; padding: 1rem; text-align: center; border-radius: 8px;">
+                            <i class="fas fa-image" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                            <p>Button Icon</p>
+                            <small>Click to upload</small>
+                        </div>
+                    `;
+                };
+                testImg.src = url;
+            } else {
+                // Reset to default state
+                preview.innerHTML = `
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Click to upload icon</p>
+                `;
+            }
+        }
+
+        // Load all users
+        async function loadUsers() {
+            try {
+                const response = await fetch('/admin/users');
+                const data = await response.json();
+                
+                if (data.success) {
+                    users = data.users;
+                    renderUsersTable();
+                } else {
+                    console.error('Failed to load users:', data.error);
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        // Render users table
+        function renderUsersTable() {
+            const tbody = document.getElementById('users-table-body');
+            tbody.innerHTML = '';
+
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.businessNumber || 'N/A'}</td>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>${user.mobileNumber}</td>
+                    <td><span class="status-badge ${user.status || 'active'}">${user.status || 'Active'}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="editUser('${user.id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-info" onclick="viewUserAnalytics('${user.id}', '${user.businessNumber}')">
+                            <i class="fas fa-chart-line"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteUser('${user.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <button class="btn btn-sm btn-warning" onclick="testDeleteUser('${user.id}')">
+                            <i class="fas fa-bug"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Show add user modal
+        window.showAddUserModal = function() {
+            editingUserId = null;
+            document.getElementById('modal-title').textContent = 'Add New User';
+            document.getElementById('user-form').reset();
+            
+            // Hide advanced sections for new users
+            document.getElementById('media-section').style.display = 'none';
+            document.getElementById('buttons-section').style.display = 'none';
+            document.getElementById('social-section').style.display = 'none';
+            document.getElementById('review-section').style.display = 'none';
+            
+            // Clear dynamic content
+            document.getElementById('buttons-container').innerHTML = '';
+            document.getElementById('social-container').innerHTML = '';
+            
+            document.getElementById('user-modal').style.display = 'block';
+        }
+
+        // Edit user
+        window.editUser = function(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+
+            editingUserId = userId;
+            document.getElementById('modal-title').textContent = 'Edit User';
+            
+            // Basic fields
+            document.getElementById('user-name').value = user.name || '';
+            document.getElementById('user-email').value = user.email || '';
+            document.getElementById('user-mobile').value = user.mobileNumber || '';
+            
+            // Show all sections for editing
+            document.getElementById('media-section').style.display = 'block';
+            document.getElementById('buttons-section').style.display = 'block';
+            document.getElementById('social-section').style.display = 'block';
+            document.getElementById('review-section').style.display = 'block';
+            document.getElementById('menu-section').style.display = 'block';
+            
+            // Media fields
+            document.getElementById('user-banner').value = user.bannerImage || '';
+            document.getElementById('user-logo').value = user.logo || '';
+            document.getElementById('user-review').value = user.reviewUrl || '';
+            document.getElementById('minimum-rating').value = user.minimumRating || 0;
+            document.getElementById('user-menu').value = user.menuPdf || '';
+            
+            // Load existing images if they exist
+            if (user.bannerImage) {
+                console.log('Loading banner image:', user.bannerImage);
+                // Check if it's the old blue placeholder and replace with new transparent one
+                if (user.bannerImage.includes('fill="#667eea"') || user.bannerImage.includes('BANNER')) {
+                    console.log('Banner is a placeholder, replacing with transparent version');
+                    const newBannerSvg = `<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="300" height="200" fill="transparent" stroke="#ddd" stroke-width="2" stroke-dasharray="5,5"/>
+                        <text x="150" y="100" text-anchor="middle" fill="#999" font-family="Arial" font-size="16">BANNER PLACEHOLDER</text>
+                    </svg>`;
+                    const newBannerUrl = `data:image/svg+xml;base64,${btoa(newBannerSvg)}`;
+                    updateImagePreview('banner', newBannerUrl);
+                } else {
+                    console.log('Banner is a real image, loading it');
+                    updateImagePreview('banner', user.bannerImage);
+                }
+            }
+            if (user.logo) {
+                console.log('Loading logo image:', user.logo);
+                // Check if it's the old blue placeholder and replace with new transparent one
+                if (user.logo.includes('fill="#667eea"') || user.logo.includes('LOGO')) {
+                    console.log('Logo is a placeholder, replacing with transparent version');
+                    const newLogoSvg = `<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="300" height="200" fill="transparent" stroke="#ddd" stroke-width="2" stroke-dasharray="5,5"/>
+                        <text x="150" y="100" text-anchor="middle" fill="#999" font-family="Arial" font-size="16">LOGO PLACEHOLDER</text>
+                    </svg>`;
+                    const newLogoUrl = `data:image/svg+xml;base64,${btoa(newLogoSvg)}`;
+                    updateImagePreview('logo', newLogoUrl);
+                } else {
+                    console.log('Logo is a real image, loading it');
+                    updateImagePreview('logo', user.logo);
+                }
+            }
+            
+            // Load buttons
+            console.log('Loading buttons:', user.buttons);
+            console.log('User data:', user);
+            loadButtons(user.buttons || []);
+            
+            // Load social links
+            console.log('Loading social links:', user.socialLinks);
+            loadSocialLinks(user.socialLinks || []);
+            
+            // Load existing PDF if it exists
+            if (user.menuPdf) {
+                console.log('Loading menu PDF:', user.menuPdf);
+                updatePdfPreview('menu', user.menuPdf);
+            }
+            
+            document.getElementById('user-modal').style.display = 'block';
+        }
+
+        // Close modal
+        window.closeUserModal = function() {
+            document.getElementById('user-modal').style.display = 'none';
+            editingUserId = null;
+        }
+
+        // Delete user
+        window.deleteUser = async function(userId) {
+            console.log('Attempting to delete user with ID:', userId);
+            if (!confirm('Are you sure you want to delete this user?')) return;
+
+            try {
+                console.log('Making DELETE request to:', `/admin/users/${userId}`);
+                const response = await fetch(`/admin/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                if (data.success) {
+                    console.log('User deleted successfully, reloading users...');
+                    loadUsers();
+                    alert('User deleted successfully');
+                } else {
+                    console.error('Delete failed:', data.error);
+                    alert('Failed to delete user: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                alert('Error deleting user: ' + error.message);
+            }
+        }
+
+        // Test delete user
+        window.testDeleteUser = async function(userId) {
+            console.log('Testing delete for user ID:', userId);
+            if (!confirm('Test delete this user? (This will actually delete the user)')) return;
+
+            try {
+                console.log('Making test DELETE request to:', `/admin/test-delete/${userId}`);
+                const response = await fetch(`/admin/test-delete/${userId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('Test response status:', response.status);
+                const data = await response.json();
+                console.log('Test response data:', data);
+
+                if (data.success) {
+                    console.log('Test delete successful, reloading users...');
+                    loadUsers();
+                    alert('Test delete completed successfully');
+                } else {
+                    console.error('Test delete failed:', data.error);
+                    alert('Test delete failed: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error in test delete:', error);
+                alert('Test delete error: ' + error.message);
+            }
+        }
+
+        // Toggle device-specific URLs
+        window.toggleDeviceSpecificUrls = function(buttonIndex) {
+            const checkbox = document.getElementById(`device-specific-${buttonIndex}`);
+            const defaultUrlDiv = document.getElementById(`default-url-${buttonIndex}`);
+            const deviceUrlsDiv = document.getElementById(`device-urls-${buttonIndex}`);
+            
+            if (checkbox.checked) {
+                defaultUrlDiv.style.display = 'none';
+                deviceUrlsDiv.style.display = 'block';
+            } else {
+                defaultUrlDiv.style.display = 'block';
+                deviceUrlsDiv.style.display = 'none';
+            }
+        };
+
+        // Handle form submission
+        document.getElementById('user-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const userData = Object.fromEntries(formData.entries());
+            
+            // Process buttons data properly
+            const buttons = [];
+            const buttonContainer = document.getElementById('buttons-container');
+            const buttonElements = buttonContainer.querySelectorAll('.dynamic-item');
+            
+            buttonElements.forEach((buttonElement, index) => {
+                const textInput = buttonElement.querySelector(`input[name*="[text]"]`);
+                const urlInput = buttonElement.querySelector(`input[name*="[url]"]`);
+                const iconInput = buttonElement.querySelector(`input[name*="[icon]"]`);
+                const enabledInput = buttonElement.querySelector(`input[name*="[enabled]"]`);
+                const deviceSpecificInput = buttonElement.querySelector(`input[name*="[deviceSpecific]"]`);
+                const desktopUrlInput = buttonElement.querySelector(`input[name*="[desktopUrl]"]`);
+                const androidUrlInput = buttonElement.querySelector(`input[name*="[androidUrl]"]`);
+                const iosUrlInput = buttonElement.querySelector(`input[name*="[iosUrl]"]`);
+                
+                if (textInput && textInput.value) {
+                    const buttonData = {
+                        text: textInput.value,
+                        icon: iconInput ? iconInput.value : '',
+                        enabled: enabledInput ? enabledInput.checked : true,
+                        deviceSpecific: deviceSpecificInput ? deviceSpecificInput.checked : false
+                    };
+                    
+                    if (buttonData.deviceSpecific) {
+                        // Use device-specific URLs
+                        buttonData.desktopUrl = desktopUrlInput ? desktopUrlInput.value : '';
+                        buttonData.androidUrl = androidUrlInput ? androidUrlInput.value : '';
+                        buttonData.iosUrl = iosUrlInput ? iosUrlInput.value : '';
+                        buttonData.url = buttonData.desktopUrl; // Fallback to desktop URL
+                    } else {
+                        // Use single URL
+                        buttonData.url = urlInput ? urlInput.value : '';
+                    }
+                    
+                    buttons.push(buttonData);
+                }
+            });
+            
+            // Process social links data properly
+            const socialLinks = [];
+            const socialContainer = document.getElementById('social-container');
+            const socialElements = socialContainer.querySelectorAll('.dynamic-item');
+            
+            socialElements.forEach((socialElement, index) => {
+                const iconInput = socialElement.querySelector(`input[name*="[icon]"]`);
+                const urlInput = socialElement.querySelector(`input[name*="[url]"]`);
+                const enabledInput = socialElement.querySelector(`input[name*="[enabled]"]`);
+                
+                if (iconInput && urlInput && iconInput.value && urlInput.value) {
+                    socialLinks.push({
+                        icon: iconInput.value,
+                        url: urlInput.value,
+                        enabled: enabledInput ? enabledInput.checked : true
+                    });
+                }
+            });
+            
+            // Add processed data to userData
+            if (buttons.length > 0) {
+                userData.buttons = buttons;
+            }
+            if (socialLinks.length > 0) {
+                userData.socialLinks = socialLinks;
+            }
+            
+            console.log('Processed form data:', userData);
+            console.log('Buttons:', buttons);
+            console.log('Social Links:', socialLinks);
+
+            try {
+                let response;
+                if (editingUserId) {
+                    // Update user
+                    response = await fetch(`/admin/users/${editingUserId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(userData)
+                    });
+                } else {
+                    // Create user
+                    response = await fetch('/admin/users', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(userData)
+                    });
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    closeUserModal();
+                    loadUsers();
+                    alert(editingUserId ? 'User updated successfully' : 'User created successfully');
+                } else {
+                    alert('Failed to save user: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error saving user:', error);
+                alert('Error saving user');
+            }
+        });
+
+        // Button management
+        window.addButton = function() {
+            const container = document.getElementById('buttons-container');
+            const buttonIndex = container.children.length;
+            
+            const buttonDiv = document.createElement('div');
+            buttonDiv.className = 'dynamic-item';
+            buttonDiv.innerHTML = `
+                <div class="dynamic-item-header">
+                    <h5>Button ${buttonIndex + 1}</h5>
+                    <div class="toggle-container">
+                        <label class="toggle">
+                            <input type="checkbox" name="buttons[${buttonIndex}][enabled]" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <span>Enabled</span>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="removeButton(this)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Button Icon</label>
+                        <div class="image-upload-container">
+                            <input type="file" id="button-icon-${buttonIndex}" accept="image/*" style="display: none;">
+                            <div class="image-upload-area" onclick="document.getElementById('button-icon-${buttonIndex}').click()">
+                                <div id="button-icon-preview-${buttonIndex}" class="image-preview">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>Click to upload icon</p>
+                                </div>
+                            </div>
+                            <div class="image-upload-progress" id="button-icon-progress-${buttonIndex}" style="display: none;">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="button-icon-progress-fill-${buttonIndex}"></div>
+                                </div>
+                                <span id="button-icon-progress-text-${buttonIndex}">Uploading...</span>
+                            </div>
+                            <input type="hidden" name="buttons[${buttonIndex}][icon]" id="button-icon-url-${buttonIndex}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Button Text</label>
+                        <input type="text" name="buttons[${buttonIndex}][text]" placeholder="Call Now" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="toggle-container">
+                        <label class="toggle-label">
+                            <span class="toggle-text">Device Specific URLs</span>
+                            <div class="toggle-switch">
+                                <input type="checkbox" name="buttons[${buttonIndex}][deviceSpecific]" id="device-specific-${buttonIndex}" onchange="toggleDeviceSpecificUrls(${buttonIndex})">
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </label>
+                        <p class="toggle-description">Enable to set different URLs for Desktop, Android, and iOS devices</p>
+                    </div>
+                </div>
+                <div class="form-group" id="default-url-${buttonIndex}">
+                    <label>Redirect URL (Default)</label>
+                    <input type="url" name="buttons[${buttonIndex}][url]" placeholder="https://example.com" required>
+                </div>
+                <div class="device-specific-urls" id="device-urls-${buttonIndex}" style="display: none;">
+                    <div class="form-group">
+                        <label>Desktop URL</label>
+                        <input type="url" name="buttons[${buttonIndex}][desktopUrl]" placeholder="https://example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Android URL</label>
+                        <input type="url" name="buttons[${buttonIndex}][androidUrl]" placeholder="https://example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>iOS URL</label>
+                        <input type="url" name="buttons[${buttonIndex}][iosUrl]" placeholder="https://example.com">
+                    </div>
+                </div>
+            `;
+            container.appendChild(buttonDiv);
+            
+            // Setup upload for the new button
+            setTimeout(() => {
+                setupButtonIconUploads();
+            }, 100);
+        }
+
+        window.removeButton = function(button) {
+            const buttonItem = button.closest('.dynamic-item');
+            console.log('Removing button:', buttonItem);
+            
+            // Get the current button index before removal
+            const container = document.getElementById('buttons-container');
+            const allButtons = container.querySelectorAll('.dynamic-item');
+            const buttonIndex = Array.from(allButtons).indexOf(buttonItem);
+            console.log('Removing button at index:', buttonIndex);
+            
+            // Remove the button from DOM
+            buttonItem.remove();
+            
+            // Clear any hidden form data for this button
+            clearButtonFormData(buttonIndex);
+            
+            // Re-index remaining buttons to maintain proper form data structure
+            reindexButtons();
+            
+            // Debug: Log remaining buttons after deletion
+            const remainingButtons = container.querySelectorAll('.dynamic-item');
+            console.log('Remaining buttons after deletion:', remainingButtons.length);
+        }
+        
+        function clearButtonFormData(index) {
+            // Find and clear any hidden inputs or form data for the deleted button
+            const form = document.getElementById('user-form');
+            if (form) {
+                // Remove any hidden inputs for this button index
+                const hiddenInputs = form.querySelectorAll(`input[name*="buttons[${index}]"]`);
+                hiddenInputs.forEach(input => {
+                    console.log('Removing hidden input:', input.name, input.value);
+                    input.remove();
+                });
+                console.log(`Cleared ${hiddenInputs.length} hidden inputs for button ${index}`);
+                
+                // Also clear any form data that might be cached
+                const formData = new FormData(form);
+                const buttonKeys = [];
+                for (let [key, value] of formData.entries()) {
+                    if (key.includes(`buttons[${index}]`)) {
+                        buttonKeys.push(key);
+                    }
+                }
+                console.log('Found form data keys to clear:', buttonKeys);
+            }
+        }
+        
+        function reindexButtons() {
+            const container = document.getElementById('buttons-container');
+            const buttons = container.querySelectorAll('.dynamic-item');
+            
+            console.log('Reindexing buttons. Found:', buttons.length);
+            
+            buttons.forEach((button, newIndex) => {
+                console.log(`Reindexing button ${newIndex}:`, button);
+                
+                // Update all input names to use new index
+                const inputs = button.querySelectorAll('input, select');
+                inputs.forEach(input => {
+                    const name = input.getAttribute('name');
+                    if (name && name.includes('buttons[')) {
+                        const newName = name.replace(/buttons\[\d+\]/, `buttons[${newIndex}]`);
+                        console.log(`Updating input name: ${name} -> ${newName}`);
+                        input.setAttribute('name', newName);
+                    }
+                });
+                
+                // Update file input IDs and preview IDs
+                const fileInput = button.querySelector('input[type="file"]');
+                if (fileInput) {
+                    fileInput.id = `button-icon-${newIndex}`;
+                    fileInput.setAttribute('onclick', `document.getElementById('button-icon-${newIndex}').click()`);
+                }
+                
+                const preview = button.querySelector('.image-upload-area');
+                if (preview) {
+                    preview.setAttribute('onclick', `document.getElementById('button-icon-${newIndex}').click()`);
+                }
+                
+                const previewDiv = button.querySelector('.image-preview');
+                if (previewDiv) {
+                    previewDiv.id = `button-icon-preview-${newIndex}`;
+                }
+            });
+        }
+
+        function loadButtons(buttons) {
+            const container = document.getElementById('buttons-container');
+            container.innerHTML = '';
+            
+            console.log('loadButtons called with:', buttons);
+            console.log('Is array?', Array.isArray(buttons));
+            console.log('Length:', buttons ? buttons.length : 'undefined');
+            
+            if (!buttons || !Array.isArray(buttons)) {
+                console.log('No buttons to load or not an array');
+                return;
+            }
+            
+            buttons.forEach((button, index) => {
+                const buttonDiv = document.createElement('div');
+                buttonDiv.className = 'dynamic-item';
+                buttonDiv.innerHTML = `
+                    <div class="dynamic-item-header">
+                        <h5>Button ${index + 1}</h5>
+                        <div class="toggle-container">
+                            <label class="toggle">
+                                <input type="checkbox" name="buttons[${index}][enabled]" ${button.enabled ? 'checked' : ''}>
+                                <span class="slider"></span>
+                            </label>
+                            <span>Enabled</span>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="removeButton(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Button Icon</label>
+                            <div class="image-upload-container">
+                                <input type="file" id="button-icon-${index}" accept="image/*" style="display: none;">
+                                <div class="image-upload-area" onclick="document.getElementById('button-icon-${index}').click()">
+                                    <div id="button-icon-preview-${index}" class="image-preview">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Click to upload icon</p>
+                                    </div>
+                                </div>
+                                <div class="image-upload-progress" id="button-icon-progress-${index}" style="display: none;">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="button-icon-progress-fill-${index}"></div>
+                                    </div>
+                                    <span id="button-icon-progress-text-${index}">Uploading...</span>
+                                </div>
+                                <input type="hidden" name="buttons[${index}][icon]" id="button-icon-url-${index}" value="${button.icon || ''}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Button Text</label>
+                            <input type="text" name="buttons[${index}][text]" value="${button.text || ''}" placeholder="Call Now" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="toggle-container">
+                            <label class="toggle-label">
+                                <span class="toggle-text">Device Specific URLs</span>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" name="buttons[${index}][deviceSpecific]" id="device-specific-${index}" ${button.deviceSpecific ? 'checked' : ''} onchange="toggleDeviceSpecificUrls(${index})">
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </label>
+                            <p class="toggle-description">Enable to set different URLs for Desktop, Android, and iOS devices</p>
+                        </div>
+                    </div>
+                    <div class="form-group" id="default-url-${index}" style="${button.deviceSpecific ? 'display: none;' : ''}">
+                        <label>Redirect URL (Default)</label>
+                        <input type="url" name="buttons[${index}][url]" value="${button.url || ''}" placeholder="https://example.com" required>
+                    </div>
+                    <div class="device-specific-urls" id="device-urls-${index}" style="${button.deviceSpecific ? '' : 'display: none;'}">
+                        <div class="form-group">
+                            <label>Desktop URL</label>
+                            <input type="url" name="buttons[${index}][desktopUrl]" value="${button.desktopUrl || ''}" placeholder="https://example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Android URL</label>
+                            <input type="url" name="buttons[${index}][androidUrl]" value="${button.androidUrl || ''}" placeholder="https://example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>iOS URL</label>
+                            <input type="url" name="buttons[${index}][iosUrl]" value="${button.iosUrl || ''}" placeholder="https://example.com">
+                        </div>
+                    </div>
+                `;
+                container.appendChild(buttonDiv);
+            });
+            
+            // Setup uploads for existing buttons
+            setTimeout(() => {
+                setupButtonIconUploads();
+                
+                // Load existing button icons
+                buttons.forEach((button, index) => {
+                    if (button.icon && (button.icon.startsWith('http') || button.icon.includes('data:image/svg+xml'))) {
+                        updateButtonIconPreview(index, button.icon);
+                    }
+                });
+            }, 100);
+        }
+
+        // Social links management
+        window.addSocialLink = function() {
+            const container = document.getElementById('social-container');
+            const socialIndex = container.children.length;
+            
+            const socialDiv = document.createElement('div');
+            socialDiv.className = 'dynamic-item';
+            socialDiv.innerHTML = `
+                <div class="dynamic-item-header">
+                    <h5>Social Link ${socialIndex + 1}</h5>
+                    <div class="toggle-container">
+                        <label class="toggle">
+                            <input type="checkbox" name="socialLinks[${socialIndex}][enabled]" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <span>Enabled</span>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="removeSocialLink(this)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Icon</label>
+                        <select name="socialLinks[${socialIndex}][icon]" class="icon-select" required>
+                            <option value="">Select an icon</option>
+                            <option value="fab fa-facebook">Facebook</option>
+                            <option value="fab fa-twitter">Twitter</option>
+                            <option value="fab fa-instagram">Instagram</option>
+                            <option value="fab fa-linkedin">LinkedIn</option>
+                            <option value="fab fa-youtube">YouTube</option>
+                            <option value="fab fa-whatsapp">WhatsApp</option>
+                            <option value="fab fa-telegram">Telegram</option>
+                            <option value="fab fa-discord">Discord</option>
+                            <option value="fab fa-github">GitHub</option>
+                            <option value="fab fa-twitch">Twitch</option>
+                            <option value="fab fa-tiktok">TikTok</option>
+                            <option value="fab fa-snapchat">Snapchat</option>
+                            <option value="fab fa-pinterest">Pinterest</option>
+                            <option value="fab fa-reddit">Reddit</option>
+                            <option value="fab fa-skype">Skype</option>
+                            <option value="fab fa-viber">Viber</option>
+                            <option value="fab fa-wechat">WeChat</option>
+                            <option value="fab fa-snapchat-ghost">Snapchat Ghost</option>
+                            <option value="fab fa-google-plus">Google+</option>
+                            <option value="fab fa-vimeo">Vimeo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>URL</label>
+                        <input type="url" name="socialLinks[${socialIndex}][url]" placeholder="https://facebook.com/yourpage" required>
+                    </div>
+                </div>
+            `;
+            container.appendChild(socialDiv);
+        }
+
+        window.removeSocialLink = function(button) {
+            const socialItem = button.closest('.dynamic-item');
+            socialItem.remove();
+            
+            // Re-index remaining social links to maintain proper form data structure
+            reindexSocialLinks();
+        }
+        
+        function reindexSocialLinks() {
+            const container = document.getElementById('social-container');
+            const socialLinks = container.querySelectorAll('.dynamic-item');
+            
+            socialLinks.forEach((social, newIndex) => {
+                // Update all input names to use new index
+                const inputs = social.querySelectorAll('input, select');
+                inputs.forEach(input => {
+                    const name = input.getAttribute('name');
+                    if (name && name.includes('socialLinks[')) {
+                        const newName = name.replace(/socialLinks\[\d+\]/, `socialLinks[${newIndex}]`);
+                        input.setAttribute('name', newName);
+                    }
+                });
+            });
+        }
+
+        function loadSocialLinks(socialLinks) {
+            const container = document.getElementById('social-container');
+            container.innerHTML = '';
+            
+            console.log('loadSocialLinks called with:', socialLinks);
+            console.log('Is array?', Array.isArray(socialLinks));
+            console.log('Length:', socialLinks ? socialLinks.length : 'undefined');
+            
+            if (!socialLinks || !Array.isArray(socialLinks)) {
+                console.log('No social links to load or not an array');
+                return;
+            }
+            
+            socialLinks.forEach((social, index) => {
+                const socialDiv = document.createElement('div');
+                socialDiv.className = 'dynamic-item';
+                socialDiv.innerHTML = `
+                    <div class="dynamic-item-header">
+                        <h5>Social Link ${index + 1}</h5>
+                        <div class="toggle-container">
+                            <label class="toggle">
+                                <input type="checkbox" name="socialLinks[${index}][enabled]" ${social.enabled ? 'checked' : ''}>
+                                <span class="slider"></span>
+                            </label>
+                            <span>Enabled</span>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="removeSocialLink(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Icon</label>
+                            <select name="socialLinks[${index}][icon]" class="icon-select" required>
+                                <option value="">Select an icon</option>
+                                <option value="fab fa-facebook" ${social.icon === 'fab fa-facebook' ? 'selected' : ''}>Facebook</option>
+                                <option value="fab fa-twitter" ${social.icon === 'fab fa-twitter' ? 'selected' : ''}>Twitter</option>
+                                <option value="fab fa-instagram" ${social.icon === 'fab fa-instagram' ? 'selected' : ''}>Instagram</option>
+                                <option value="fab fa-linkedin" ${social.icon === 'fab fa-linkedin' ? 'selected' : ''}>LinkedIn</option>
+                                <option value="fab fa-youtube" ${social.icon === 'fab fa-youtube' ? 'selected' : ''}>YouTube</option>
+                                <option value="fab fa-whatsapp" ${social.icon === 'fab fa-whatsapp' ? 'selected' : ''}>WhatsApp</option>
+                                <option value="fab fa-telegram" ${social.icon === 'fab fa-telegram' ? 'selected' : ''}>Telegram</option>
+                                <option value="fab fa-discord" ${social.icon === 'fab fa-discord' ? 'selected' : ''}>Discord</option>
+                                <option value="fab fa-github" ${social.icon === 'fab fa-github' ? 'selected' : ''}>GitHub</option>
+                                <option value="fab fa-twitch" ${social.icon === 'fab fa-twitch' ? 'selected' : ''}>Twitch</option>
+                                <option value="fab fa-tiktok" ${social.icon === 'fab fa-tiktok' ? 'selected' : ''}>TikTok</option>
+                                <option value="fab fa-snapchat" ${social.icon === 'fab fa-snapchat' ? 'selected' : ''}>Snapchat</option>
+                                <option value="fab fa-pinterest" ${social.icon === 'fab fa-pinterest' ? 'selected' : ''}>Pinterest</option>
+                                <option value="fab fa-reddit" ${social.icon === 'fab fa-reddit' ? 'selected' : ''}>Reddit</option>
+                                <option value="fab fa-skype" ${social.icon === 'fab fa-skype' ? 'selected' : ''}>Skype</option>
+                                <option value="fab fa-viber" ${social.icon === 'fab fa-viber' ? 'selected' : ''}>Viber</option>
+                                <option value="fab fa-wechat" ${social.icon === 'fab fa-wechat' ? 'selected' : ''}>WeChat</option>
+                                <option value="fab fa-snapchat-ghost" ${social.icon === 'fab fa-snapchat-ghost' ? 'selected' : ''}>Snapchat Ghost</option>
+                                <option value="fab fa-google-plus" ${social.icon === 'fab fa-google-plus' ? 'selected' : ''}>Google+</option>
+                                <option value="fab fa-vimeo" ${social.icon === 'fab fa-vimeo' ? 'selected' : ''}>Vimeo</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>URL</label>
+                            <input type="url" name="socialLinks[${index}][url]" value="${social.url || ''}" placeholder="https://facebook.com/yourpage" required>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(socialDiv);
+            });
+        }
+
+        // View user analytics
+        window.viewUserAnalytics = function(userId, businessNumber) {
+            // Redirect to analytics page with user filter
+            window.location.href = `/admin/analytics?userId=${userId}&businessNumber=${businessNumber}`;
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('user-modal');
+            if (event.target === modal) {
+                closeUserModal();
+            }
+        }
+
+        // Session refresh functionality
+        function refreshSession() {
+            fetch('/admin/refresh-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Session refreshed successfully');
+                }
+            })
+            .catch(error => {
+                console.error('Session refresh failed:', error);
+            });
+        }
+
+        // Refresh session every 5 minutes
+        setInterval(refreshSession, 5 * 60 * 1000);
+
+        // Refresh session on page visibility change (when user comes back to tab)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                refreshSession();
+            }
+        });
+
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const navMenu = document.getElementById('navMenu');
+            const mobileToggle = document.querySelector('.mobile-menu-toggle');
+            const icon = mobileToggle.querySelector('i');
+            const label = mobileToggle.querySelector('.menu-label');
+            
+            navMenu.classList.toggle('active');
+            
+            // Toggle hamburger icon and label
+            if (navMenu.classList.contains('active')) {
+                icon.className = 'fas fa-times';
+                label.textContent = 'Close';
+            } else {
+                icon.className = 'fas fa-bars';
+                label.textContent = 'Menu';
+            }
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const navMenu = document.getElementById('navMenu');
+            const mobileToggle = document.querySelector('.mobile-menu-toggle');
+            
+            if (navMenu.classList.contains('active') && 
+                !navMenu.contains(event.target) && 
+                !mobileToggle.contains(event.target)) {
+                navMenu.classList.remove('active');
+                const icon = mobileToggle.querySelector('i');
+                const label = mobileToggle.querySelector('.menu-label');
+                icon.className = 'fas fa-bars';
+                label.textContent = 'Menu';
+            }
+        });
+    </script>
+</body>
+</html>

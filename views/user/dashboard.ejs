@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard - Kochi One</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="/css/admin.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="user-dashboard">
+    <!-- User Navigation -->
+    <nav class="user-nav">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-user"></i>
+                <span>My Dashboard</span>
+            </div>
+            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars"></i>
+                <span class="menu-label">Menu</span>
+            </button>
+            <div class="nav-menu" id="navMenu">
+                <a href="/user/dashboard" class="nav-link active">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="/user/dashboard?tab=edit" class="nav-link">
+                    <i class="fas fa-edit"></i>
+                    <span>Edit Profile</span>
+                </a>
+                <a href="/user/logout" class="nav-link logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+        <div class="admin-container">
+            <!-- Analytics Tab -->
+            <div id="analytics-tab" class="tab-content">
+                <!-- Analytics Header -->
+                <div class="analytics-header">
+                    <h2>My Analytics</h2>
+                    <div class="analytics-controls">
+                        <select id="timeRange" class="form-control">
+                            <option value="7">Last 7 days</option>
+                            <option value="30" selected>Last 30 days</option>
+                            <option value="90">Last 90 days</option>
+                            <option value="365">Last year</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="refreshAnalytics()">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="analytics-cards">
+                    <div class="analytics-card">
+                        <div class="card-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3 id="totalVisits">0</h3>
+                            <p>Total Review Page Visits</p>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="card-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3 id="totalReviews">0</h3>
+                            <p>Total Review Submissions</p>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="card-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3 id="avgRating">0.0</h3>
+                            <p>Average Rating</p>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="card-icon">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3 id="businessNumber"><%= userData.businessNumber %></h3>
+                            <p>Your Business Number</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="analytics-charts">
+                    <div class="chart-container">
+                        <h3>Review Page Visits Over Time</h3>
+                        <canvas id="visitsChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Review Submissions Over Time</h3>
+                        <canvas id="reviewsChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Rating Distribution</h3>
+                        <canvas id="ratingChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Review URL Section -->
+                <div class="review-url-section">
+                    <h3>Your Review Page</h3>
+                    <div class="review-url-container">
+                        <p>Share this link to get reviews:</p>
+                        <div class="url-display">
+                            <input type="text" id="reviewUrl" value="<%= process.env.NODE_ENV === 'production' ? 'https://' + process.env.VERCEL_URL : 'http://localhost:3000' %>/?BIS=<%= userData.businessNumber %>" readonly>
+                            <button class="btn btn-primary" onclick="copyReviewUrl()">
+                                <i class="fas fa-copy"></i>
+                                Copy Link
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Profile Tab -->
+            <div id="edit-tab" class="tab-content" style="display: none;">
+                <!-- Edit Profile Header -->
+                <div class="user-management-header">
+                    <h2>Edit My Profile</h2>
+                    <button class="btn btn-primary" onclick="saveProfile()">
+                        <i class="fas fa-save"></i>
+                        Save Changes
+                    </button>
+                </div>
+
+                <!-- Edit Form -->
+                <form id="profile-form" class="edit-profile-form">
+                    <!-- Basic Information -->
+                    <div class="form-section">
+                        <h4>Basic Information</h4>
+                        <div class="form-group">
+                            <label for="user-name">Full Name *</label>
+                            <input type="text" id="user-name" name="name" value="<%= userData.name %>" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="user-email">Email Address *</label>
+                            <input type="email" id="user-email" name="email" value="<%= userData.email %>" class="form-control" required readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="user-mobile">Mobile Number *</label>
+                            <input type="tel" id="user-mobile" name="mobileNumber" value="<%= userData.mobileNumber %>" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <!-- Media Section -->
+                    <div class="form-section">
+                        <h4>Media</h4>
+                        <div class="form-group">
+                            <label for="banner-upload">Banner Image</label>
+                            <div class="image-upload-container">
+                                <input type="file" id="banner-upload" accept="image/*" style="display: none;">
+                                <div class="image-upload-area" onclick="document.getElementById('banner-upload').click()">
+                                    <div id="banner-preview" class="image-preview">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Click to upload banner image</p>
+                                    </div>
+                                </div>
+                                <div class="image-upload-progress" id="banner-progress" style="display: none;">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="banner-progress-fill"></div>
+                                    </div>
+                                    <span id="banner-progress-text">Uploading...</span>
+                                </div>
+                                <input type="hidden" id="user-banner" name="bannerImage" value="<%= userData.bannerImage || '' %>">
+                                <button type="button" id="banner-delete" class="image-delete-btn" onclick="deleteImage('banner')" style="display: none;">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group" style="display: none;">
+                            <label for="logo-upload">Logo</label>
+                            <div class="image-upload-container">
+                                <input type="file" id="logo-upload" accept="image/*" style="display: none;">
+                                <div class="image-upload-area" onclick="document.getElementById('logo-upload').click()">
+                                    <div id="logo-preview" class="image-preview">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Click to upload logo</p>
+                                    </div>
+                                </div>
+                                <div class="image-upload-progress" id="logo-progress" style="display: none;">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="logo-progress-fill"></div>
+                                    </div>
+                                    <span id="logo-progress-text">Uploading...</span>
+                                </div>
+                                <input type="hidden" id="user-logo" name="logo" value="<%= userData.logo || '' %>">
+                                <button type="button" id="logo-delete" class="image-delete-btn" onclick="deleteImage('logo')" style="display: none;">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Review URL Section -->
+                    <div class="form-section">
+                        <h4>Review Settings</h4>
+                        <div class="form-group">
+                            <label for="user-review">Google Review URL</label>
+                            <input type="url" id="user-review" name="reviewUrl" value="<%= userData.reviewUrl || '' %>" class="form-control" placeholder="https://g.page/your-business/review">
+                        </div>
+                    </div>
+
+                    <!-- Buttons Section -->
+                    <div class="form-section">
+                        <h4>Action Buttons</h4>
+                        <div id="buttons-container">
+                            <!-- Buttons will be loaded here -->
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="addButton()">
+                            <i class="fas fa-plus"></i> Add Button
+                        </button>
+                    </div>
+
+                    <!-- Social Links Section -->
+                    <div class="form-section">
+                        <h4>Social Links</h4>
+                        <div id="social-container">
+                            <!-- Social links will be loaded here -->
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="addSocialLink()">
+                            <i class="fas fa-plus"></i> Add Social Link
+                        </button>
+                    </div>
+
+                    <!-- Menu Section -->
+                    <div class="form-section">
+                        <h4>Menu PDF</h4>
+                        <div class="form-group">
+                            <label for="menu-upload">Menu PDF</label>
+                            <div class="pdf-upload-container">
+                                <input type="file" id="menu-upload" accept=".pdf" style="display: none;">
+                                <div class="pdf-upload-area" onclick="document.getElementById('menu-upload').click()">
+                                    <div id="menu-preview" class="pdf-preview">
+                                        <i class="fas fa-file-pdf"></i>
+                                        <p>Click to upload menu PDF</p>
+                                        <small>Maximum size: 10MB</small>
+                                    </div>
+                                </div>
+                                <div class="pdf-upload-progress" id="menu-progress" style="display: none;">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="menu-progress-fill"></div>
+                                    </div>
+                                    <span id="menu-progress-text">Uploading...</span>
+                                </div>
+                                <input type="hidden" id="user-menu" name="menuPdf" value="<%= userData.menuPdf || '' %>">
+                                <button type="button" id="menu-delete" class="pdf-delete-btn" onclick="deletePdf('menu')" style="display: none;">
+                                    <i class="fas fa-trash"></i> Delete PDF
+                                </button>
+                            </div>
+                            <small class="form-text">Upload a PDF menu that customers can view at /menu?BIS=<%= userData.businessNumber %></small>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="admin-footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Kochi One User Dashboard. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="/">Main Site</a>
+                <a href="/user/logout">Logout</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let userData = <%- JSON.stringify(userData) %>;
+        let visitsChart = null;
+        let reviewsChart = null;
+        let ratingChart = null;
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check URL for tab parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+            
+            if (tab === 'edit') {
+                showEditTab();
+            } else {
+                showAnalyticsTab();
+            }
+            
+            // Load analytics data
+            loadAnalytics();
+            
+            // Setup image uploads
+            setupImageUploads();
+            
+            // Setup PDF uploads
+            setupPdfUploads();
+            
+            // Load existing buttons and social links
+            loadButtons(userData.buttons || []);
+            loadSocialLinks(userData.socialLinks || []);
+            
+            // Load existing images
+            if (userData.bannerImage) {
+                updateImagePreview('banner', userData.bannerImage);
+            }
+            if (userData.logo) {
+                updateImagePreview('logo', userData.logo);
+            }
+            if (userData.menuPdf) {
+                updatePdfPreview('menu', userData.menuPdf);
+            }
+        });
+
+        // Tab switching
+        function showAnalyticsTab() {
+            document.getElementById('analytics-tab').style.display = 'block';
+            document.getElementById('edit-tab').style.display = 'none';
+            
+            // Update nav links
+            document.querySelector('a[href="/user/dashboard"]').classList.add('active');
+            document.querySelector('a[href="/user/dashboard?tab=edit"]').classList.remove('active');
+        }
+
+        function showEditTab() {
+            document.getElementById('analytics-tab').style.display = 'none';
+            document.getElementById('edit-tab').style.display = 'block';
+            
+            // Update nav links
+            document.querySelector('a[href="/user/dashboard"]').classList.remove('active');
+            document.querySelector('a[href="/user/dashboard?tab=edit"]').classList.add('active');
+        }
+
+        // Load analytics data
+        async function loadAnalytics() {
+            try {
+                const timeRange = document.getElementById('timeRange').value;
+                const response = await fetch(`/user/api/analytics?timeRange=${timeRange}`);
+                const data = await response.json();
+                
+                if (data.success && data.analytics) {
+                    updateSummaryCards(data.analytics);
+                    updateCharts(data.analytics);
+                }
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+            }
+        }
+
+        // Update summary cards
+        function updateSummaryCards(analytics) {
+            document.getElementById('totalVisits').textContent = analytics.totalVisits || 0;
+            document.getElementById('totalReviews').textContent = analytics.reviews?.totalSubmissions || 0;
+            document.getElementById('avgRating').textContent = analytics.reviews?.averageRating || '0.0';
+        }
+
+        // Update charts
+        function updateCharts(analytics) {
+            updateVisitsChart(analytics);
+            updateReviewsChart(analytics);
+            updateRatingChart(analytics);
+        }
+
+        // Copy review URL
+        function copyReviewUrl() {
+            const urlInput = document.getElementById('reviewUrl');
+            urlInput.select();
+            urlInput.setSelectionRange(0, 99999); // For mobile devices
+            document.execCommand('copy');
+            
+            // Show feedback
+            const button = event.target.closest('button');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            button.style.background = '#10b981';
+            
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.style.background = '';
+            }, 2000);
+        }
+
+        // Toggle device-specific URLs
+        window.toggleDeviceSpecificUrls = function(buttonIndex) {
+            const checkbox = document.getElementById(`device-specific-${buttonIndex}`);
+            const defaultUrlDiv = document.getElementById(`default-url-${buttonIndex}`);
+            const deviceUrlsDiv = document.getElementById(`device-urls-${buttonIndex}`);
+            
+            if (checkbox.checked) {
+                defaultUrlDiv.style.display = 'none';
+                deviceUrlsDiv.style.display = 'block';
+            } else {
+                defaultUrlDiv.style.display = 'block';
+                deviceUrlsDiv.style.display = 'none';
+            }
+        };
+
+        // Save profile
+        async function saveProfile() {
+            try {
+                const formData = new FormData(document.getElementById('profile-form'));
+                const profileData = Object.fromEntries(formData.entries());
+                
+                // Process buttons and social links (same logic as admin dashboard)
+                const buttons = [];
+                const buttonContainer = document.getElementById('buttons-container');
+                const buttonElements = buttonContainer.querySelectorAll('.dynamic-item');
+                
+                buttonElements.forEach((buttonElement, index) => {
+                    const textInput = buttonElement.querySelector(`input[name*="[text]"]`);
+                    const urlInput = buttonElement.querySelector(`input[name*="[url]"]`);
+                    const iconInput = buttonElement.querySelector(`input[name*="[icon]"]`);
+                    const enabledInput = buttonElement.querySelector(`input[name*="[enabled]"]`);
+                    const deviceSpecificInput = buttonElement.querySelector(`input[name*="[deviceSpecific]"]`);
+                    const desktopUrlInput = buttonElement.querySelector(`input[name*="[desktopUrl]"]`);
+                    const androidUrlInput = buttonElement.querySelector(`input[name*="[androidUrl]"]`);
+                    const iosUrlInput = buttonElement.querySelector(`input[name*="[iosUrl]"]`);
+                    
+                    if (textInput && textInput.value) {
+                        const buttonData = {
+                            text: textInput.value,
+                            icon: iconInput ? iconInput.value : '',
+                            enabled: enabledInput ? enabledInput.checked : true,
+                            deviceSpecific: deviceSpecificInput ? deviceSpecificInput.checked : false
+                        };
+                        
+                        if (buttonData.deviceSpecific) {
+                            // Use device-specific URLs
+                            buttonData.desktopUrl = desktopUrlInput ? desktopUrlInput.value : '';
+                            buttonData.androidUrl = androidUrlInput ? androidUrlInput.value : '';
+                            buttonData.iosUrl = iosUrlInput ? iosUrlInput.value : '';
+                            buttonData.url = buttonData.desktopUrl; // Fallback to desktop URL
+                        } else {
+                            // Use single URL
+                            buttonData.url = urlInput ? urlInput.value : '';
+                        }
+                        
+                        buttons.push(buttonData);
+                    }
+                });
+                
+                const socialLinks = [];
+                const socialContainer = document.getElementById('social-container');
+                const socialElements = socialContainer.querySelectorAll('.dynamic-item');
+                
+                socialElements.forEach((socialElement, index) => {
+                    const iconInput = socialElement.querySelector(`input[name*="[icon]"]`);
+                    const urlInput = socialElement.querySelector(`input[name*="[url]"]`);
+                    const enabledInput = socialElement.querySelector(`input[name*="[enabled]"]`);
+                    
+                    if (iconInput && urlInput && iconInput.value && urlInput.value) {
+                        socialLinks.push({
+                            icon: iconInput.value,
+                            url: urlInput.value,
+                            enabled: enabledInput ? enabledInput.checked : true
+                        });
+                    }
+                });
+                
+                if (buttons.length > 0) {
+                    profileData.buttons = buttons;
+                }
+                if (socialLinks.length > 0) {
+                    profileData.socialLinks = socialLinks;
+                }
+                
+                const response = await fetch('/user/api/update', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(profileData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Profile updated successfully!');
+                    // Update local userData
+                    userData = data.user;
+                } else {
+                    alert('Failed to update profile: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error saving profile:', error);
+                alert('Error saving profile');
+            }
+        }
+
+        // Include all the functions from admin dashboard for image uploads, buttons, social links, etc.
+        // (Copy all the relevant functions from admin dashboard)
+        
+        // Setup image upload functionality
+        function setupImageUploads() {
+            const bannerUpload = document.getElementById('banner-upload');
+            if (bannerUpload) {
+                bannerUpload.addEventListener('change', function(e) {
+                    handleImageUpload(e.target.files[0], 'banner');
+                });
+            }
+
+            const logoUpload = document.getElementById('logo-upload');
+            if (logoUpload) {
+                logoUpload.addEventListener('change', function(e) {
+                    handleImageUpload(e.target.files[0], 'logo');
+                });
+            }
+            
+            // Setup button icon uploads
+            setupButtonIconUploads();
+        }
+
+        // Setup PDF upload functionality
+        function setupPdfUploads() {
+            const menuUpload = document.getElementById('menu-upload');
+            if (menuUpload) {
+                menuUpload.addEventListener('change', function(e) {
+                    handlePdfUpload(e.target.files[0], 'menu');
+                });
+            }
+        }
+
+        // Setup button icon uploads
+        function setupButtonIconUploads() {
+            // Find all button icon file inputs
+            const buttonIconInputs = document.querySelectorAll('input[id^="button-icon-"][type="file"]');
+            buttonIconInputs.forEach(input => {
+                input.addEventListener('change', function(e) {
+                    const buttonIndex = input.id.split('-')[2];
+                    handleButtonIconUpload(e.target.files[0], buttonIndex);
+                });
+            });
+        }
+
+        // Handle button icon upload
+        async function handleButtonIconUpload(file, buttonIndex) {
+            if (!file) return;
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file');
+                return;
+            }
+
+            // Show file size info
+            const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            console.log(`Uploading button icon: ${file.name} (${fileSizeMB} MB)`);
+
+            // Validate file size (max 5MB for icons)
+            if (file.size > 5 * 1024 * 1024) {
+                alert(`File size (${fileSizeMB} MB) must be less than 5MB. Please choose a smaller image.`);
+                return;
+            }
+
+            // Additional validation for base64 size (base64 is ~33% larger than original)
+            const maxBase64Size = 6.7 * 1024 * 1024; // ~5MB original file
+            if (file.size > maxBase64Size) {
+                alert(`File is too large (${fileSizeMB} MB). Please choose a smaller image (max 5MB)`);
+                return;
+            }
+
+            try {
+                // Show progress
+                const progressElement = document.getElementById(`button-icon-progress-${buttonIndex}`);
+                const progressFill = document.getElementById(`button-icon-progress-fill-${buttonIndex}`);
+                const progressText = document.getElementById(`button-icon-progress-text-${buttonIndex}`);
+                
+                if (progressElement) {
+                    progressElement.style.display = 'block';
+                    progressText.textContent = 'Uploading...';
+                }
+
+                // Convert file to base64
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    try {
+                        const imageData = e.target.result;
+                        
+                        // Simulate progress
+                        let progress = 0;
+                        const progressInterval = setInterval(() => {
+                            progress += 10;
+                            if (progressFill) {
+                                progressFill.style.width = progress + '%';
+                            }
+                            if (progressText) {
+                                progressText.textContent = `Uploading... ${progress}%`;
+                            }
+                            
+                            if (progress >= 90) {
+                                clearInterval(progressInterval);
+                            }
+                        }, 100);
+
+                        // Upload to server
+                        const response = await fetch('/user/upload-image', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                imageData: imageData,
+                                type: `button-icon-${buttonIndex}`
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            // Update hidden input with URL
+                            const hiddenInput = document.getElementById(`button-icon-url-${buttonIndex}`);
+                            if (hiddenInput) {
+                                hiddenInput.value = result.url;
+                            }
+                            
+                            // Update preview
+                            updateButtonIconPreview(buttonIndex, result.url);
+                            
+                            // Hide progress
+                            if (progressElement) {
+                                progressElement.style.display = 'none';
+                            }
+                        } else {
+                            throw new Error(result.error || 'Upload failed');
+                        }
+                    } catch (error) {
+                        console.error('Button icon upload error:', error);
+                        if (progressElement) {
+                            progressElement.style.display = 'none';
+                        }
+                        alert('Upload failed: ' + error.message);
+                    }
+                };
+                
+                reader.readAsDataURL(file);
+            } catch (error) {
+                console.error('Button icon upload error:', error);
+                alert('Upload failed: ' + error.message);
+            }
+        }
+
+        // Handle PDF upload via server
+        async function handlePdfUpload(file, type) {
+            if (!file) return;
+
+            // Validate file type
+            if (file.type !== 'application/pdf') {
+                alert('Please select a PDF file');
+                return;
+            }
+
+            // Validate file size (max 10MB for PDFs)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size must be less than 10MB');
+                return;
+            }
+
+            try {
+                // Show progress
+                const progressElement = document.getElementById(`${type}-progress`);
+                const progressFill = document.getElementById(`${type}-progress-fill`);
+                const progressText = document.getElementById(`${type}-progress-text`);
+                
+                if (progressElement) {
+                    progressElement.style.display = 'block';
+                    progressText.textContent = 'Uploading...';
+                }
+
+                // Convert file to base64
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    try {
+                        const pdfData = e.target.result;
+                        
+                        // Simulate progress
+                        let progress = 0;
+                        const progressInterval = setInterval(() => {
+                            progress += 10;
+                            if (progressFill) {
+                                progressFill.style.width = progress + '%';
+                            }
+                            if (progressText) {
+                                progressText.textContent = `Uploading... ${progress}%`;
+                            }
+                            
+                            if (progress >= 90) {
+                                clearInterval(progressInterval);
+                            }
+                        }, 100);
+
+                        // Upload to server
+                        const response = await fetch('/user/upload-pdf', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                pdfData: pdfData
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            // Update hidden input with URL
+                            document.getElementById(`user-${type}`).value = result.url;
+                            
+                            // Update preview
+                            updatePdfPreview(type, result.url);
+                            
+                            // Hide progress
+                            if (progressElement) {
+                                progressElement.style.display = 'none';
+                            }
+                            
+                            console.log(`${type} PDF uploaded successfully:`, result.url);
+                        } else {
+                            throw new Error(result.error || 'Upload failed');
+                        }
+                    } catch (error) {
+                        console.error('Upload error:', error);
+                        if (progressElement) {
+                            progressElement.style.display = 'none';
+                        }
+                        alert('Upload failed: ' + error.message);
+                    }
+                };
+                
+                reader.readAsDataURL(file);
+
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('Upload failed: ' + error.message);
+            }
+        }
+
+        // Update PDF preview
+        function updatePdfPreview(type, url) {
+            const preview = document.getElementById(`${type}-preview`);
+            console.log(`Updating ${type} PDF preview with URL:`, url);
+            
+            if (url && url.startsWith('http')) {
+                preview.innerHTML = `
+                    <div class="pdf-preview-content">
+                        <i class="fas fa-file-pdf" style="color: #e74c3c; font-size: 2rem; margin-bottom: 1rem;"></i>
+                        <p><strong>Menu PDF</strong></p>
+                        <p style="font-size: 0.9rem; color: #666;">Click to change</p>
+                        <a href="${url}" target="_blank" class="btn btn-sm btn-primary" style="margin-top: 0.5rem;">
+                            <i class="fas fa-eye"></i> View PDF
+                        </a>
+                    </div>
+                `;
+                
+                // Show delete button
+                const deleteBtn = document.getElementById(`${type}-delete`);
+                if (deleteBtn) {
+                    deleteBtn.style.display = 'flex';
+                }
+                
+                console.log(`Updated ${type} PDF preview`);
+            } else {
+                // Reset to default state
+                preview.innerHTML = `
+                    <i class="fas fa-file-pdf"></i>
+                    <p>Click to upload menu PDF</p>
+                    <small>Maximum size: 10MB</small>
+                `;
+                
+                // Hide delete button
+                const deleteBtn = document.getElementById(`${type}-delete`);
+                if (deleteBtn) {
+                    deleteBtn.style.display = 'none';
+                }
+            }
+        }
+
+        // Delete PDF function
+        function deletePdf(type) {
+            if (confirm(`Are you sure you want to delete the ${type} PDF?`)) {
+                // Reset the preview to default state
+                const preview = document.getElementById(`${type}-preview`);
+                preview.innerHTML = `
+                    <i class="fas fa-file-pdf"></i>
+                    <p>Click to upload menu PDF</p>
+                    <small>Maximum size: 10MB</small>
+                `;
+                
+                // Clear the hidden input
+                const hiddenInput = document.getElementById(`user-${type}`);
+                if (hiddenInput) {
+                    hiddenInput.value = '';
+                }
+                
+                // Hide the delete button
+                const deleteBtn = document.getElementById(`${type}-delete`);
+                if (deleteBtn) {
+                    deleteBtn.style.display = 'none';
+                }
+                
+                console.log(`${type} PDF deleted`);
+            }
+        }
+
+        // Update button icon preview
+        function updateButtonIconPreview(buttonIndex, url) {
+            const preview = document.getElementById(`button-icon-preview-${buttonIndex}`);
+            console.log(`Updating button icon ${buttonIndex} preview with URL:`, url);
+            
+            if (url && (url.includes('data:image/svg+xml') || url.startsWith('http'))) {
+                // Create a test image to see if the URL is valid
+                const testImg = new Image();
+                testImg.onload = function() {
+                    preview.innerHTML = `
+                        <img src="${url}" alt="Button Icon" style="max-width: 100%; max-height: 100px; object-fit: contain; border-radius: 4px; display: block; background: transparent;">
+                        <div class="image-overlay">
+                            <i class="fas fa-edit"></i>
+                            <p>Click to change</p>
+                        </div>
+                    `;
+                };
+                testImg.onerror = function() {
+                    preview.innerHTML = `
+                        <div style="background: #667eea; color: white; padding: 1rem; text-align: center; border-radius: 4px;">
+                            <i class="fas fa-image" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                            <p>Button Icon</p>
+                            <small>Click to upload</small>
+                        </div>
+                    `;
+                };
+                testImg.src = url;
+            } else {
+                preview.innerHTML = `
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Click to upload icon</p>
+                `;
+            }
+        }
+
+        // Handle image upload via server
+        async function handleImageUpload(file, type) {
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file');
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size must be less than 5MB');
+                return;
+            }
+
+            // Additional validation for base64 size (base64 is ~33% larger than original)
+            const maxBase64Size = 6.7 * 1024 * 1024; // ~5MB original file
+            if (file.size > maxBase64Size) {
+                alert('File is too large. Please choose a smaller image (max 5MB)');
+                return;
+            }
+
+            try {
+                const progressElement = document.getElementById(`${type}-progress`);
+                const progressFill = document.getElementById(`${type}-progress-fill`);
+                const progressText = document.getElementById(`${type}-progress-text`);
+                
+                progressElement.style.display = 'block';
+                progressText.textContent = 'Uploading...';
+
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    try {
+                        const imageData = e.target.result;
+                        
+                        let progress = 0;
+                        const progressInterval = setInterval(() => {
+                            progress += 10;
+                            progressFill.style.width = progress + '%';
+                            progressText.textContent = `Uploading... ${progress}%`;
+                            
+                            if (progress >= 90) {
+                                clearInterval(progressInterval);
+                            }
+                        }, 100);
+
+                        const response = await fetch('/user/upload-image', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                imageData: imageData,
+                                type: type
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            document.getElementById(`user-${type}`).value = result.url;
+                            updateImagePreview(type, result.url);
+                            progressElement.style.display = 'none';
+                        } else {
+                            throw new Error(result.error || 'Upload failed');
+                        }
+                    } catch (error) {
+                        console.error('Upload error:', error);
+                        progressElement.style.display = 'none';
+                        alert('Upload failed: ' + error.message);
+                    }
+                };
+                
+                reader.readAsDataURL(file);
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('Upload failed: ' + error.message);
+            }
+        }
+
+        // Update image preview
+        function updateImagePreview(type, url) {
+            const preview = document.getElementById(`${type}-preview`);
+            
+            if (url && (url.includes('data:image/svg+xml') || url.startsWith('http'))) {
+                const testImg = new Image();
+                testImg.onload = function() {
+                    preview.innerHTML = `
+                        <img src="${url}" alt="${type}" style="max-width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; display: block; background: transparent;">
+                        <div class="image-overlay">
+                            <i class="fas fa-edit"></i>
+                            <p>Click to change</p>
+                        </div>
+                    `;
+                    
+                    const deleteBtn = document.getElementById(`${type}-delete`);
+                    if (deleteBtn) {
+                        deleteBtn.style.display = 'flex';
+                    }
+                };
+                testImg.onerror = function() {
+                    preview.innerHTML = `
+                        <div style="background: #667eea; color: white; padding: 2rem; text-align: center; border-radius: 8px;">
+                            <i class="fas fa-image" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                            <p>${type.toUpperCase()} Image</p>
+                            <small>Click to upload</small>
+                        </div>
+                    `;
+                    
+                    const deleteBtn = document.getElementById(`${type}-delete`);
+                    if (deleteBtn) {
+                        deleteBtn.style.display = 'none';
+                    }
+                };
+                testImg.src = url;
+            } else {
+                preview.innerHTML = `
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Click to upload ${type} image</p>
+                `;
+                
+                const deleteBtn = document.getElementById(`${type}-delete`);
+                if (deleteBtn) {
+                    deleteBtn.style.display = 'none';
+                }
+            }
+        }
+
+        // Delete image function
+        function deleteImage(type) {
+            if (confirm(`Are you sure you want to delete the ${type} image?`)) {
+                const preview = document.getElementById(`${type}-preview`);
+                preview.innerHTML = `
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Click to upload ${type} image</p>
+                `;
+                
+                const hiddenInput = document.getElementById(`user-${type}`);
+                if (hiddenInput) {
+                    hiddenInput.value = '';
+                }
+                
+                const deleteBtn = document.getElementById(`${type}-delete`);
+                if (deleteBtn) {
+                    deleteBtn.style.display = 'none';
+                }
+            }
+        }
+
+        // Button management functions (simplified versions)
+        function addButton() {
+            const container = document.getElementById('buttons-container');
+            const buttonIndex = container.children.length;
+            
+            const buttonDiv = document.createElement('div');
+            buttonDiv.className = 'dynamic-item';
+            buttonDiv.innerHTML = `
+                <div class="dynamic-item-header">
+                    <h5>Button ${buttonIndex + 1}</h5>
+                    <div class="toggle-container">
+                        <label class="toggle">
+                            <input type="checkbox" name="buttons[${buttonIndex}][enabled]" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <span>Enabled</span>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="removeButton(this)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Button Icon</label>
+                        <div class="image-upload-container">
+                            <input type="file" id="button-icon-${buttonIndex}" accept="image/*" style="display: none;">
+                            <div class="image-upload-area" onclick="document.getElementById('button-icon-${buttonIndex}').click()">
+                                <div id="button-icon-preview-${buttonIndex}" class="image-preview">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>Click to upload icon</p>
+                                </div>
+                            </div>
+                            <div class="image-upload-progress" id="button-icon-progress-${buttonIndex}" style="display: none;">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="button-icon-progress-fill-${buttonIndex}"></div>
+                                </div>
+                                <span id="button-icon-progress-text-${buttonIndex}">Uploading...</span>
+                            </div>
+                            <input type="hidden" name="buttons[${buttonIndex}][icon]" id="button-icon-url-${buttonIndex}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Button Text</label>
+                        <input type="text" name="buttons[${buttonIndex}][text]" placeholder="Call Now" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="toggle-container">
+                        <label class="toggle-label">
+                            <span class="toggle-text">Device Specific URLs</span>
+                            <div class="toggle-switch">
+                                <input type="checkbox" name="buttons[${buttonIndex}][deviceSpecific]" id="device-specific-${buttonIndex}" onchange="toggleDeviceSpecificUrls(${buttonIndex})">
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </label>
+                        <p class="toggle-description">Enable to set different URLs for Desktop, Android, and iOS devices</p>
+                    </div>
+                </div>
+                <div class="form-group" id="default-url-${buttonIndex}">
+                    <label>Redirect URL (Default)</label>
+                    <input type="url" name="buttons[${buttonIndex}][url]" placeholder="https://example.com" required>
+                </div>
+                <div class="device-specific-urls" id="device-urls-${buttonIndex}" style="display: none;">
+                    <div class="form-group">
+                        <label>Desktop URL</label>
+                        <input type="url" name="buttons[${buttonIndex}][desktopUrl]" placeholder="https://example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Android URL</label>
+                        <input type="url" name="buttons[${buttonIndex}][androidUrl]" placeholder="https://example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>iOS URL</label>
+                        <input type="url" name="buttons[${buttonIndex}][iosUrl]" placeholder="https://example.com">
+                    </div>
+                </div>
+            `;
+            container.appendChild(buttonDiv);
+            
+            // Setup the new button icon upload
+            const newInput = document.getElementById(`button-icon-${buttonIndex}`);
+            if (newInput) {
+                newInput.addEventListener('change', function(e) {
+                    handleButtonIconUpload(e.target.files[0], buttonIndex);
+                });
+            }
+        }
+
+        function removeButton(button) {
+            const buttonItem = button.closest('.dynamic-item');
+            buttonItem.remove();
+        }
+
+        function loadButtons(buttons) {
+            const container = document.getElementById('buttons-container');
+            container.innerHTML = '';
+            
+            if (!buttons || !Array.isArray(buttons)) {
+                return;
+            }
+            
+            buttons.forEach((button, index) => {
+                const buttonDiv = document.createElement('div');
+                buttonDiv.className = 'dynamic-item';
+                buttonDiv.innerHTML = `
+                    <div class="dynamic-item-header">
+                        <h5>Button ${index + 1}</h5>
+                        <div class="toggle-container">
+                            <label class="toggle">
+                                <input type="checkbox" name="buttons[${index}][enabled]" ${button.enabled ? 'checked' : ''}>
+                                <span class="slider"></span>
+                            </label>
+                            <span>Enabled</span>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="removeButton(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Button Icon</label>
+                            <div class="image-upload-container">
+                                <input type="file" id="button-icon-${index}" accept="image/*" style="display: none;">
+                                <div class="image-upload-area" onclick="document.getElementById('button-icon-${index}').click()">
+                                    <div id="button-icon-preview-${index}" class="image-preview">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Click to upload icon</p>
+                                    </div>
+                                </div>
+                                <div class="image-upload-progress" id="button-icon-progress-${index}" style="display: none;">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="button-icon-progress-fill-${index}"></div>
+                                    </div>
+                                    <span id="button-icon-progress-text-${index}">Uploading...</span>
+                                </div>
+                                <input type="hidden" name="buttons[${index}][icon]" id="button-icon-url-${index}" value="${button.icon || ''}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Button Text</label>
+                            <input type="text" name="buttons[${index}][text]" value="${button.text || ''}" placeholder="Call Now" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="toggle-container">
+                            <label class="toggle-label">
+                                <span class="toggle-text">Device Specific URLs</span>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" name="buttons[${index}][deviceSpecific]" id="device-specific-${index}" ${button.deviceSpecific ? 'checked' : ''} onchange="toggleDeviceSpecificUrls(${index})">
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </label>
+                            <p class="toggle-description">Enable to set different URLs for Desktop, Android, and iOS devices</p>
+                        </div>
+                    </div>
+                    <div class="form-group" id="default-url-${index}" style="${button.deviceSpecific ? 'display: none;' : ''}">
+                        <label>Redirect URL (Default)</label>
+                        <input type="url" name="buttons[${index}][url]" value="${button.url || ''}" placeholder="https://example.com" required>
+                    </div>
+                    <div class="device-specific-urls" id="device-urls-${index}" style="${button.deviceSpecific ? '' : 'display: none;'}">
+                        <div class="form-group">
+                            <label>Desktop URL</label>
+                            <input type="url" name="buttons[${index}][desktopUrl]" value="${button.desktopUrl || ''}" placeholder="https://example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Android URL</label>
+                            <input type="url" name="buttons[${index}][androidUrl]" value="${button.androidUrl || ''}" placeholder="https://example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>iOS URL</label>
+                            <input type="url" name="buttons[${index}][iosUrl]" value="${button.iosUrl || ''}" placeholder="https://example.com">
+                        </div>
+                    </div>
+                `;
+                container.appendChild(buttonDiv);
+                
+                // Setup the button icon upload handler
+                const input = document.getElementById(`button-icon-${index}`);
+                if (input) {
+                    input.addEventListener('change', function(e) {
+                        handleButtonIconUpload(e.target.files[0], index);
+                    });
+                }
+                
+                // Load existing icon if available
+                if (button.icon) {
+                    updateButtonIconPreview(index, button.icon);
+                }
+            });
+        }
+
+        // Social links management functions (simplified versions)
+        function addSocialLink() {
+            const container = document.getElementById('social-container');
+            const socialIndex = container.children.length;
+            
+            const socialDiv = document.createElement('div');
+            socialDiv.className = 'dynamic-item';
+            socialDiv.innerHTML = `
+                <div class="dynamic-item-header">
+                    <h5>Social Link ${socialIndex + 1}</h5>
+                    <div class="toggle-container">
+                        <label class="toggle">
+                            <input type="checkbox" name="socialLinks[${socialIndex}][enabled]" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <span>Enabled</span>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="removeSocialLink(this)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Icon</label>
+                        <select name="socialLinks[${socialIndex}][icon]" class="icon-select" required>
+                            <option value="">Select an icon</option>
+                            <option value="fab fa-facebook">Facebook</option>
+                            <option value="fab fa-twitter">Twitter</option>
+                            <option value="fab fa-instagram">Instagram</option>
+                            <option value="fab fa-linkedin">LinkedIn</option>
+                            <option value="fab fa-youtube">YouTube</option>
+                            <option value="fab fa-whatsapp">WhatsApp</option>
+                            <option value="fab fa-telegram">Telegram</option>
+                            <option value="fab fa-discord">Discord</option>
+                            <option value="fab fa-github">GitHub</option>
+                            <option value="fab fa-twitch">Twitch</option>
+                            <option value="fab fa-tiktok">TikTok</option>
+                            <option value="fab fa-snapchat">Snapchat</option>
+                            <option value="fab fa-pinterest">Pinterest</option>
+                            <option value="fab fa-reddit">Reddit</option>
+                            <option value="fab fa-skype">Skype</option>
+                            <option value="fab fa-viber">Viber</option>
+                            <option value="fab fa-wechat">WeChat</option>
+                            <option value="fab fa-snapchat-ghost">Snapchat Ghost</option>
+                            <option value="fab fa-google-plus">Google+</option>
+                            <option value="fab fa-vimeo">Vimeo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>URL</label>
+                        <input type="url" name="socialLinks[${socialIndex}][url]" placeholder="https://facebook.com/yourpage" required>
+                    </div>
+                </div>
+            `;
+            container.appendChild(socialDiv);
+        }
+
+        function removeSocialLink(button) {
+            const socialItem = button.closest('.dynamic-item');
+            socialItem.remove();
+        }
+
+        function loadSocialLinks(socialLinks) {
+            const container = document.getElementById('social-container');
+            container.innerHTML = '';
+            
+            if (!socialLinks || !Array.isArray(socialLinks)) {
+                return;
+            }
+            
+            socialLinks.forEach((social, index) => {
+                const socialDiv = document.createElement('div');
+                socialDiv.className = 'dynamic-item';
+                socialDiv.innerHTML = `
+                    <div class="dynamic-item-header">
+                        <h5>Social Link ${index + 1}</h5>
+                        <div class="toggle-container">
+                            <label class="toggle">
+                                <input type="checkbox" name="socialLinks[${index}][enabled]" ${social.enabled ? 'checked' : ''}>
+                                <span class="slider"></span>
+                            </label>
+                            <span>Enabled</span>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="removeSocialLink(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Icon</label>
+                            <select name="socialLinks[${index}][icon]" class="icon-select" required>
+                                <option value="">Select an icon</option>
+                                <option value="fab fa-facebook" ${social.icon === 'fab fa-facebook' ? 'selected' : ''}>Facebook</option>
+                                <option value="fab fa-twitter" ${social.icon === 'fab fa-twitter' ? 'selected' : ''}>Twitter</option>
+                                <option value="fab fa-instagram" ${social.icon === 'fab fa-instagram' ? 'selected' : ''}>Instagram</option>
+                                <option value="fab fa-linkedin" ${social.icon === 'fab fa-linkedin' ? 'selected' : ''}>LinkedIn</option>
+                                <option value="fab fa-youtube" ${social.icon === 'fab fa-youtube' ? 'selected' : ''}>YouTube</option>
+                                <option value="fab fa-whatsapp" ${social.icon === 'fab fa-whatsapp' ? 'selected' : ''}>WhatsApp</option>
+                                <option value="fab fa-telegram" ${social.icon === 'fab fa-telegram' ? 'selected' : ''}>Telegram</option>
+                                <option value="fab fa-discord" ${social.icon === 'fab fa-discord' ? 'selected' : ''}>Discord</option>
+                                <option value="fab fa-github" ${social.icon === 'fab fa-github' ? 'selected' : ''}>GitHub</option>
+                                <option value="fab fa-twitch" ${social.icon === 'fab fa-twitch' ? 'selected' : ''}>Twitch</option>
+                                <option value="fab fa-tiktok" ${social.icon === 'fab fa-tiktok' ? 'selected' : ''}>TikTok</option>
+                                <option value="fab fa-snapchat" ${social.icon === 'fab fa-snapchat' ? 'selected' : ''}>Snapchat</option>
+                                <option value="fab fa-pinterest" ${social.icon === 'fab fa-pinterest' ? 'selected' : ''}>Pinterest</option>
+                                <option value="fab fa-reddit" ${social.icon === 'fab fa-reddit' ? 'selected' : ''}>Reddit</option>
+                                <option value="fab fa-skype" ${social.icon === 'fab fa-skype' ? 'selected' : ''}>Skype</option>
+                                <option value="fab fa-viber" ${social.icon === 'fab fa-viber' ? 'selected' : ''}>Viber</option>
+                                <option value="fab fa-wechat" ${social.icon === 'fab fa-wechat' ? 'selected' : ''}>WeChat</option>
+                                <option value="fab fa-snapchat-ghost" ${social.icon === 'fab fa-snapchat-ghost' ? 'selected' : ''}>Snapchat Ghost</option>
+                                <option value="fab fa-google-plus" ${social.icon === 'fab fa-google-plus' ? 'selected' : ''}>Google+</option>
+                                <option value="fab fa-vimeo" ${social.icon === 'fab fa-vimeo' ? 'selected' : ''}>Vimeo</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>URL</label>
+                            <input type="url" name="socialLinks[${index}][url]" value="${social.url || ''}" placeholder="https://facebook.com/yourpage" required>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(socialDiv);
+            });
+        }
+
+        // Chart functions (simplified versions)
+        function updateVisitsChart(analytics) {
+            const ctx = document.getElementById('visitsChart').getContext('2d');
+            
+            if (visitsChart) {
+                visitsChart.destroy();
+            }
+
+            const visitsByDate = analytics.visitsByDate || {};
+            const dates = Object.keys(visitsByDate).sort();
+            const visits = dates.map(date => visitsByDate[date]);
+
+            visitsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates.map(date => new Date(date).toLocaleDateString()),
+                    datasets: [{
+                        label: 'Review Page Visits',
+                        data: visits,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateReviewsChart(analytics) {
+            const ctx = document.getElementById('reviewsChart').getContext('2d');
+            
+            if (reviewsChart) {
+                reviewsChart.destroy();
+            }
+
+            const reviewsByDate = analytics.reviews?.submissionsByDate || {};
+            const dates = Object.keys(reviewsByDate).sort();
+            const reviews = dates.map(date => reviewsByDate[date]);
+
+            reviewsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates.map(date => new Date(date).toLocaleDateString()),
+                    datasets: [{
+                        label: 'Review Submissions',
+                        data: reviews,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateRatingChart(analytics) {
+            const ctx = document.getElementById('ratingChart').getContext('2d');
+            
+            if (ratingChart) {
+                ratingChart.destroy();
+            }
+
+            const ratingDistribution = analytics.reviews?.ratingDistribution || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
+            ratingChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+                    datasets: [{
+                        data: Object.values(ratingDistribution),
+                        backgroundColor: [
+                            '#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Refresh analytics
+        function refreshAnalytics() {
+            loadAnalytics();
+        }
+        
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const navMenu = document.getElementById('navMenu');
+            const mobileToggle = document.querySelector('.mobile-menu-toggle');
+            const icon = mobileToggle.querySelector('i');
+            const label = mobileToggle.querySelector('.menu-label');
+            
+            navMenu.classList.toggle('active');
+            
+            // Toggle hamburger icon and label
+            if (navMenu.classList.contains('active')) {
+                icon.className = 'fas fa-times';
+                label.textContent = 'Close';
+            } else {
+                icon.className = 'fas fa-bars';
+                label.textContent = 'Menu';
+            }
+        }
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const navMenu = document.getElementById('navMenu');
+            const mobileToggle = document.querySelector('.mobile-menu-toggle');
+            
+            if (!navMenu.contains(event.target) && !mobileToggle.contains(event.target)) {
+                navMenu.classList.remove('active');
+                const icon = mobileToggle.querySelector('i');
+                const label = mobileToggle.querySelector('.menu-label');
+                icon.className = 'fas fa-bars';
+                label.textContent = 'Menu';
+            }
+        });
+        
+        // Close mobile menu when clicking on a nav link
+        document.querySelectorAll('.nav-menu .nav-link').forEach(link => {
+            link.addEventListener('click', function() {
+                const navMenu = document.getElementById('navMenu');
+                const mobileToggle = document.querySelector('.mobile-menu-toggle');
+                const icon = mobileToggle.querySelector('i');
+                const label = mobileToggle.querySelector('.menu-label');
+                
+                navMenu.classList.remove('active');
+                icon.className = 'fas fa-bars';
+                label.textContent = 'Menu';
+            });
+        });
+
+        // Session refresh functionality
+        function refreshSession() {
+            fetch('/user/refresh-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Session refreshed successfully');
+                }
+            })
+            .catch(error => {
+                console.error('Session refresh failed:', error);
+            });
+        }
+
+        // Refresh session every 5 minutes
+        setInterval(refreshSession, 5 * 60 * 1000);
+
+        // Refresh session on page visibility change (when user comes back to tab)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                refreshSession();
+            }
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const navMenu = document.getElementById('navMenu');
+            const mobileToggle = document.querySelector('.mobile-menu-toggle');
+            
+            if (navMenu.classList.contains('active') && 
+                !navMenu.contains(event.target) && 
+                !mobileToggle.contains(event.target)) {
+                navMenu.classList.remove('active');
+                const icon = mobileToggle.querySelector('i');
+                const label = mobileToggle.querySelector('.menu-label');
+                icon.className = 'fas fa-bars';
+                label.textContent = 'Menu';
+            }
+        });
+    </script>
+</body>
+</html>
