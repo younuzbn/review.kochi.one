@@ -122,7 +122,7 @@
                     <div class="review-url-container">
                         <p>Share this link to get reviews:</p>
                         <div class="url-display">
-                            <input type="text" id="reviewUrl" value="<%= process.env.NODE_ENV === 'production' ? 'https://' + process.env.VERCEL_URL : 'http://localhost:3000' %>/?BIS=<%= userData.businessNumber %>" readonly>
+                            <input type="text" id="reviewUrl" value="<%= process.env.NODE_ENV === 'production' ? (process.env.REVIEW_DOMAIN || 'https://review.kochi.one') : 'http://localhost:3000' %>/?BIS=<%= userData.businessNumber %>" readonly>
                             <button class="btn btn-primary" onclick="copyReviewUrl()">
                                 <i class="fas fa-copy"></i>
                                 Copy Link
