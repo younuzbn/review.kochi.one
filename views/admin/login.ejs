@@ -120,7 +120,24 @@
 
             } catch (error) {
                 console.error('Sign-in error:', error);
-                errorText.textContent = error.message;
+                
+                // Handle unauthorized domain error specifically
+                if (error.code === 'auth/unauthorized-domain' || error.message.includes('unauthorized-domain')) {
+                    errorText.innerHTML = `
+                        <strong>Domain Authorization Required</strong><br>
+                        The domain <code>review.kochi.one</code> needs to be authorized in Firebase Console.<br>
+                        <br>
+                        <strong>To fix this:</strong><br>
+                        1. Go to <a href="https://console.firebase.google.com" target="_blank">Firebase Console</a><br>
+                        2. Select your project<br>
+                        3. Navigate to Authentication → Settings → Authorized domains<br>
+                        4. Click "Add domain" and add: <code>review.kochi.one</code><br>
+                        5. Save and try again
+                    `;
+                } else {
+                    errorText.textContent = error.message;
+                }
+                
                 errorMessage.style.display = 'block';
                 loading.style.display = 'none';
             }
