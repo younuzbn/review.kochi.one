@@ -177,6 +177,8 @@ class UserService {
                 buttons: userData.buttons || [],
                 socialLinks: userData.socialLinks || [],
                 menuPdf: userData.menuPdf || null,
+                defaultRedirectUrl: userData.defaultRedirectUrl || '',
+                enableDefaultRedirect: userData.enableDefaultRedirect || false,
                 createdAt: userData.createdAt,
                 status: userData.status
             };

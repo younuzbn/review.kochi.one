@@ -65,6 +65,12 @@ app.get('/', async (req, res) => {
                     if (user.bannerImage) {
                         bannerImage = user.bannerImage;
                     }
+                    
+                    // Check if default redirect is enabled
+                    if (user.enableDefaultRedirect && user.defaultRedirectUrl) {
+                        console.log(`Redirecting to default URL for ${BIS}: ${user.defaultRedirectUrl}`);
+                        return res.redirect(user.defaultRedirectUrl);
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching user data for review:', error);
@@ -572,7 +578,9 @@ app.put('/admin/users/:id', requireAdminAuth, async (req, res) => {
             hideTitle: rawData.hideTitle === true || rawData.hideTitle === 'true',
             hideDescription: rawData.hideDescription === true || rawData.hideDescription === 'true',
             reviewTitle: rawData.reviewTitle || '',
-            reviewDescription: rawData.reviewDescription || ''
+            reviewDescription: rawData.reviewDescription || '',
+            defaultRedirectUrl: rawData.defaultRedirectUrl || '',
+            enableDefaultRedirect: rawData.enableDefaultRedirect === true || rawData.enableDefaultRedirect === 'true'
         };
 
         console.log('Raw data received:', rawData);

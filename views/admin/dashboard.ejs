@@ -286,6 +286,28 @@
                     </div>
                 </div>
 
+                <!-- Default Redirect Section -->
+                <div class="form-section" id="redirect-section" style="display: none;">
+                    <h4>Default Redirect</h4>
+                    <div class="form-group">
+                        <div class="toggle-container">
+                            <label class="toggle-label">
+                                <span class="toggle-text">Enable Default Redirect</span>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" name="enableDefaultRedirect" id="enable-default-redirect" value="true">
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </label>
+                            <p class="toggle-description">When enabled, visitors to the home page will be automatically redirected to the default URL instead of seeing the review page.</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="default-redirect-url">Default Redirect URL</label>
+                        <input type="url" id="default-redirect-url" name="defaultRedirectUrl" placeholder="https://example.com">
+                        <small class="form-text">The URL to redirect to when the default redirect is enabled. Leave empty to disable redirect.</small>
+                    </div>
+                </div>
+
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeUserModal()">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save User</button>
@@ -890,6 +912,8 @@
             document.getElementById('buttons-section').style.display = 'none';
             document.getElementById('social-section').style.display = 'none';
             document.getElementById('review-section').style.display = 'none';
+            document.getElementById('menu-section').style.display = 'none';
+            document.getElementById('redirect-section').style.display = 'none';
             
             // Clear dynamic content
             document.getElementById('buttons-container').innerHTML = '';
@@ -917,6 +941,7 @@
             document.getElementById('social-section').style.display = 'block';
             document.getElementById('review-section').style.display = 'block';
             document.getElementById('menu-section').style.display = 'block';
+            document.getElementById('redirect-section').style.display = 'block';
             
             // Media fields
             document.getElementById('user-banner').value = user.bannerImage || '';
@@ -930,6 +955,10 @@
             document.getElementById('hide-description').checked = user.hideDescription || false;
             document.getElementById('review-title').value = user.reviewTitle || '';
             document.getElementById('review-description').value = user.reviewDescription || '';
+            
+            // Default redirect fields
+            document.getElementById('default-redirect-url').value = user.defaultRedirectUrl || '';
+            document.getElementById('enable-default-redirect').checked = user.enableDefaultRedirect || false;
             
             // Load existing images if they exist
             if (user.bannerImage) {
@@ -1159,6 +1188,12 @@
             const reviewDescriptionInput = document.getElementById('review-description');
             userData.reviewTitle = reviewTitleInput ? reviewTitleInput.value : '';
             userData.reviewDescription = reviewDescriptionInput ? reviewDescriptionInput.value : '';
+            
+            // Add default redirect fields
+            const defaultRedirectUrlInput = document.getElementById('default-redirect-url');
+            const enableDefaultRedirectCheckbox = document.getElementById('enable-default-redirect');
+            userData.defaultRedirectUrl = defaultRedirectUrlInput ? defaultRedirectUrlInput.value : '';
+            userData.enableDefaultRedirect = enableDefaultRedirectCheckbox ? enableDefaultRedirectCheckbox.checked : false;
             
             console.log('Processed form data:', userData);
             console.log('Buttons:', buttons);
