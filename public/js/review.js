@@ -1,4 +1,6 @@
 // Review Page JavaScript
+const API_BASE_URL = 'https://api.kochi.one';
+
 document.addEventListener('DOMContentLoaded', function() {
     const stars = document.querySelectorAll('.star-wrapper a');
     const ratingText = document.getElementById('ratingText');
@@ -96,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load user data to get Google Review URL and buttons
     async function loadUserData(businessNumber) {
         try {
-            const response = await fetch(`/api/user/${businessNumber}`);
+            const response = await fetch(`${API_BASE_URL}/api/user/${businessNumber}`);
             const data = await response.json();
             
             if (data.success) {
@@ -603,7 +605,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 type: 'internal_review'
             };
 
-            const response = await fetch('/api/submit-review', {
+            const response = await fetch(`${API_BASE_URL}/api/submit-review`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

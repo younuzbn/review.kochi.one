@@ -357,6 +357,7 @@
     </footer>
 
     <script>
+        const API_BASE_URL = 'https://api.kochi.one';
         let userData = <%- JSON.stringify(userData) %>;
         let visitsChart = null;
         let reviewsChart = null;
@@ -422,7 +423,7 @@
         async function loadAnalytics() {
             try {
                 const timeRange = document.getElementById('timeRange').value;
-                const response = await fetch(`/user/api/analytics?timeRange=${timeRange}`);
+                const response = await fetch(`${API_BASE_URL}/user/api/analytics?timeRange=${timeRange}`);
                 const data = await response.json();
                 
                 if (data.success && data.analytics) {
@@ -568,7 +569,7 @@
                 profileData.reviewDescription = reviewDescriptionInput ? reviewDescriptionInput.value : '';
                 profileData.minimumRating = minimumRatingSelect ? parseInt(minimumRatingSelect.value) || 0 : 0;
                 
-                const response = await fetch('/user/api/update', {
+                const response = await fetch(`${API_BASE_URL}/user/api/update`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -697,7 +698,7 @@
                         }, 100);
 
                         // Upload to server
-                        const response = await fetch('/user/upload-image', {
+                        const response = await fetch(`${API_BASE_URL}/user/upload-image`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -793,7 +794,7 @@
                         }, 100);
 
                         // Upload to server
-                        const response = await fetch('/user/upload-pdf', {
+                        const response = await fetch(`${API_BASE_URL}/user/upload-pdf`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -985,7 +986,7 @@
                             }
                         }, 100);
 
-                        const response = await fetch('/user/upload-image', {
+                        const response = await fetch(`${API_BASE_URL}/user/upload-image`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -1561,7 +1562,7 @@
 
         // Session refresh functionality
         function refreshSession() {
-            fetch('/user/refresh-session', {
+            fetch(`${API_BASE_URL}/user/refresh-session`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

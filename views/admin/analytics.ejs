@@ -162,6 +162,7 @@
     </footer>
 
     <script>
+        const API_BASE_URL = 'https://api.kochi.one';
         let analyticsData = [];
         let visitsChart = null;
         let reviewsChart = null;
@@ -195,7 +196,7 @@
         async function loadAnalytics() {
             try {
                 const timeRange = document.getElementById('timeRange').value;
-                const response = await fetch(`/admin/analytics/api?timeRange=${timeRange}`);
+                const response = await fetch(`${API_BASE_URL}/admin/analytics/api?timeRange=${timeRange}`);
                 const data = await response.json();
                 
                 if (data.success) {
@@ -517,7 +518,7 @@
 
         // Session refresh functionality
         function refreshSession() {
-            fetch('/admin/refresh-session', {
+            fetch(`${API_BASE_URL}/admin/refresh-session`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

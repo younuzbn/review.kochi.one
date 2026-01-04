@@ -112,6 +112,7 @@
     <script src="/js/review.js"></script>
     
     <script>
+        const API_BASE_URL = 'https://api.kochi.one';
 
         // Track review page visit
         document.addEventListener('DOMContentLoaded', function() {
@@ -127,7 +128,7 @@
 
         async function trackVisit(businessNumber) {
             try {
-                const response = await fetch('/api/track-visit', {
+                const response = await fetch(`${API_BASE_URL}/api/track-visit`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

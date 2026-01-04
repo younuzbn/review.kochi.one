@@ -154,7 +154,7 @@
         <div id="pdf-viewer-container"></div>
         <script>
             // Pass PDF URL to JavaScript through proxy to avoid CORS issues
-            window.menuPdfUrl = '/api/pdf-proxy?url=' + encodeURIComponent('<%= menuPdf %>');
+            window.menuPdfUrl = 'https://api.kochi.one/api/pdf-proxy?url=' + encodeURIComponent('<%= menuPdf %>');
         </script>
     <% } else { %>
         <!-- No Menu Available -->
@@ -184,6 +184,8 @@
     <% } %>
 
     <script>
+        const API_BASE_URL = 'https://api.kochi.one';
+
         // Track menu page visit
         document.addEventListener('DOMContentLoaded', function() {
             // Get BIS parameter from URL
@@ -198,7 +200,7 @@
 
         async function trackMenuVisit(businessNumber) {
             try {
-                const response = await fetch('/api/track-visit', {
+                const response = await fetch(`${API_BASE_URL}/api/track-visit`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
